@@ -1,0 +1,30 @@
+[workspace]
+name = "dmarmx_learning"
+channels = ["https://prefix.dev/robostack-lyrical", "https://prefix.dev/conda-forge"]
+platforms = ["linux-64"]
+
+[dependencies]
+# ROS 2 (Lyrical LTS, 对应 Ubuntu 26.04)
+ros-lyrical-desktop = "*"
+
+# ros2_control
+ros-lyrical-ros2-control = "*"
+ros-lyrical-ros2-controllers = "*"
+# ros2 control CLI 的 view_controller_chains 子命令需要
+python-graphviz = "*"
+
+# MoveIt 2
+ros-lyrical-moveit = "*"
+ros-lyrical-moveit-configs-utils = "*"
+ros-lyrical-moveit-servo = "*"
+
+# 构建工具
+colcon-common-extensions = "*"
+cmake = "*"
+ninja = "*"
+make = "*"
+pkg-config = "*"
+compilers = "*"
+
+[target.linux-64.dependencies]
+libgl-devel = "*"
