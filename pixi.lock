@@ -505,6 +505,8 @@ environments:
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros-lyrical-moveit-servo-2.15.2-hb0f4dca_27.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros-lyrical-ros2-control-6.10.1-hb0f4dca_27.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros-lyrical-ros2-controllers-6.9.0-hb0f4dca_27.conda
+      - conda: https://prefix.dev/robostack-lyrical/linux-64/ros-lyrical-rqt-graph-1.8.5-hb0f4dca_27.conda
+      - conda: https://prefix.dev/robostack-lyrical/linux-64/ros-lyrical-urdf-tutorial-1.1.0-hb0f4dca_27.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-ackermann-msgs-2.0.2-np2py314h53a0733_27.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-ackermann-steering-controller-6.9.0-np2py314h53a0733_27.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-action-msgs-2.4.5-np2py314h53a0733_27.conda
@@ -636,6 +638,8 @@ environments:
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-intra-process-demo-0.37.9-np2py314hb935b5b_27.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-joint-limits-6.10.1-np2py314hc0fd5b4_27.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-joint-state-broadcaster-6.9.0-np2py314h53a0733_27.conda
+      - conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-joint-state-publisher-2.4.3-np2py314h53a0733_27.conda
+      - conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-joint-state-publisher-gui-2.4.3-np2py314h53a0733_27.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-joint-trajectory-controller-6.9.0-np2py314h53a0733_27.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-joy-3.3.0-np2py314h53a0733_27.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-kdl-parser-3.0.1-np2py314h53a0733_27.conda
@@ -898,7 +902,9 @@ environments:
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-uncrustify-vendor-3.2.0-np2py314h53a0733_27.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-unique-identifier-msgs-2.8.1-np2py314h53a0733_27.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-urdf-2.13.2-np2py314hc703c99_27.conda
+      - conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-urdf-launch-0.1.2-np2py314h53a0733_27.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-urdf-parser-plugin-2.13.2-np2py314h53a0733_27.conda
+      - conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-urdf-tutorial-1.1.0-np2py314h53a0733_27.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-urdfdom-6.0.0-py314h2f0392c_27.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-urdfdom-headers-3.0.0-py314h02e3bbf_27.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-urdfdom-py-1.2.1-py314h02e3bbf_27.conda
@@ -8253,6 +8259,22 @@ packages:
   run_exports: {}
   size: 2060
   timestamp: 1790956943293
+- conda: https://prefix.dev/robostack-lyrical/linux-64/ros-lyrical-rqt-graph-1.8.5-hb0f4dca_27.conda
+  sha256: 256f3aebd0fe8a52320f2aac8faf313ae20b286b259ae5c64654b90af0d3f85a
+  md5: dea6a6f93f7d79ee3176f50809280e82
+  depends:
+  - ros2-rqt-graph ==1.8.5
+  run_exports: {}
+  size: 2023
+  timestamp: 1790817927544
+- conda: https://prefix.dev/robostack-lyrical/linux-64/ros-lyrical-urdf-tutorial-1.1.0-hb0f4dca_27.conda
+  sha256: eb2e0dcd144c9143d2db65de97acb670dab3a12333f2532d3b4270b96c339a59
+  md5: ca23523d56aec3390b140b4177170c55
+  depends:
+  - ros2-urdf-tutorial ==1.1.0
+  run_exports: {}
+  size: 2045
+  timestamp: 1790956942914
 - conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-ackermann-msgs-2.0.2-np2py314h53a0733_27.conda
   sha256: d10750bf19be91ef1c7928e9d624d0815ce0a89ed7730f9b6ed288b39f6eb866
   md5: b01608651d3b77a208b1ef56953625ad
@@ -11091,6 +11113,47 @@ packages:
   run_exports: {}
   size: 178718
   timestamp: 1790953635062
+- conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-joint-state-publisher-2.4.3-np2py314h53a0733_27.conda
+  sha256: e50874ca518a7a706f8dc77afaf77ded1da08487743e37ac27b27a28553fe9a0
+  md5: f4f5fe31397613d99d46467a16414810
+  depends:
+  - packaging
+  - python
+  - ros2-distro-mutex 0.21.* lyrical_*
+  - ros2-rclpy
+  - ros2-ros-workspace
+  - ros2-sensor-msgs
+  - ros2-std-msgs
+  - libgcc >=15
+  - libstdcxx >=15
+  - __glibc >=2.28,<3.0.a0
+  - ros2-distro-mutex >=0.21.0,<0.22.0a0
+  - numpy >=1.25,<3
+  - python_abi 3.14.* *_cp314
+  license: BSD-3-Clause
+  run_exports: {}
+  size: 52283
+  timestamp: 1790818004458
+- conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-joint-state-publisher-gui-2.4.3-np2py314h53a0733_27.conda
+  sha256: 5f1d2e397d91a1894f76f5743f3e61189246736907b6ae73416b78c4b44296cf
+  md5: fa3c6fd5231421d7b25eed9711075450
+  depends:
+  - python
+  - ros2-distro-mutex 0.21.* lyrical_*
+  - ros2-joint-state-publisher
+  - ros2-python-qt-binding
+  - ros2-rclpy
+  - ros2-ros-workspace
+  - libgcc >=15
+  - libstdcxx >=15
+  - __glibc >=2.28,<3.0.a0
+  - python_abi 3.14.* *_cp314
+  - numpy >=1.25,<3
+  - ros2-distro-mutex >=0.21.0,<0.22.0a0
+  license: BSD-3-Clause
+  run_exports: {}
+  size: 32210
+  timestamp: 1790902898991
 - conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-joint-trajectory-controller-6.9.0-np2py314h53a0733_27.conda
   sha256: 675ed458ace4eaccc2089d5af2b0b33ff58119933877073e1adffb303a3031c4
   md5: d80ee38d1bc87b33418ae408b56fd698
@@ -17342,6 +17405,31 @@ packages:
   run_exports: {}
   size: 105667
   timestamp: 1790813345836
+- conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-urdf-launch-0.1.2-np2py314h53a0733_27.conda
+  sha256: f8ceedc1d4f6bda651a9752abada2bb54cd63f251120902a0a8594a49114a1f6
+  md5: 9c0ebcca5833076c6302c18b884ddeed
+  depends:
+  - python
+  - ros2-distro-mutex 0.21.* lyrical_*
+  - ros2-joint-state-publisher
+  - ros2-joint-state-publisher-gui
+  - ros2-launch-ros
+  - ros2-robot-state-publisher
+  - ros2-ros-workspace
+  - ros2-rviz-common
+  - ros2-rviz-default-plugins
+  - ros2-rviz2
+  - ros2-xacro
+  - __glibc >=2.28,<3.0.a0
+  - libgcc >=15
+  - libstdcxx >=15
+  - python_abi 3.14.* *_cp314
+  - ros2-distro-mutex >=0.21.0,<0.22.0a0
+  - numpy >=1.25,<3
+  license: BSD-3-Clause
+  run_exports: {}
+  size: 61031
+  timestamp: 1790955038526
 - conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-urdf-parser-plugin-2.13.2-np2py314h53a0733_27.conda
   sha256: 29eefd65a0a17acb92a8e9ae49626d484f6ed119f442b321277e1b3462dcc082
   md5: 66fd22f3f3feeff6f1e1141dec8e1eb2
@@ -17360,6 +17448,24 @@ packages:
   run_exports: {}
   size: 31973
   timestamp: 1790812429559
+- conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-urdf-tutorial-1.1.0-np2py314h53a0733_27.conda
+  sha256: 73bde6bc270014af2a8d60ce9c65fdc5ed6eb660bce3ab2dbcdf399b80c4de0d
+  md5: 73da690c663f6f47fb291471bc567425
+  depends:
+  - python
+  - ros2-distro-mutex 0.21.* lyrical_*
+  - ros2-ros-workspace
+  - ros2-urdf-launch
+  - libgcc >=15
+  - __glibc >=2.28,<3.0.a0
+  - libstdcxx >=15
+  - ros2-distro-mutex >=0.21.0,<0.22.0a0
+  - python_abi 3.14.* *_cp314
+  - numpy >=1.25,<3
+  license: BSD-3-Clause
+  run_exports: {}
+  size: 755995
+  timestamp: 1790956083649
 - conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-urdfdom-6.0.0-py314h2f0392c_27.conda
   sha256: eb8a0a466c77cc3dc920109964d4f9afa9505003a3d415c0773fff0f844789e3
   md5: 1c67f5a2237a87267202c7c5abae74e0

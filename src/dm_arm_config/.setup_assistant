@@ -1,0 +1,31 @@
+moveit_setup_assistant_config:
+  urdf:
+    package: dm_armx_description
+    relative_path: urdf/arm.urdf
+  srdf:
+    relative_path: config/DM_Armx.srdf
+  package_settings:
+    author_name: 111
+    author_email: 111@qq.com
+    generated_timestamp: 1792670092
+  control_xacro:
+    command:
+      - position
+      - velocity
+      - effort
+    state:
+      - position
+      - velocity
+      - effort
+  modified_urdf:
+    xacros:
+      - control_xacro
+  control_xacro:
+    command:
+      - position
+      - velocity
+      - effort
+    state:
+      - position
+      - velocity
+      - effort

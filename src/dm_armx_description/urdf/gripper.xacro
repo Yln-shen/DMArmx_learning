@@ -1,0 +1,142 @@
+<?xml version="1.0"?>
+<robot name="temp" xmlns:xacro="http://www.ros.org/wiki/xacro">                                        <!-- 机器人根节点，模型名称为 ReBot_Arm_DM -->
+
+  <link name="end_link">                                             <!-- 定义连杆：end_link（末端/夹爪底座） -->
+    <inertial>                                                       <!-- 惯性参数块开始 -->
+      <origin xyz="-0.0737654295815033 -9.5080995865868E-06 7.04327840286845E-06" rpy="0 0 0" /> <!-- 质心偏移：沿 -X 约 7.4cm -->
+      <mass value="0.5000000" />                                     <!-- 质量：0.5 kg -->
+      <inertia ixx="0.00037354" ixy="-0.00000011" ixz="0.00000050" iyy="0.00015830" iyz="0.00000348" izz="0.00045353" /> <!-- 惯性张量 -->
+    </inertial>                                                      <!-- 惯性参数块结束 -->
+    <visual name="gripper_base_seeed_yellow">                        <!-- 可视化元素：夹爪黄色部分 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/visual/colored_gripper_base_seeed_yellow.stl" /> <!-- 加载黄色 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="gripper_seeed_yellow" />                       <!-- 使用 gripper_seeed_yellow 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <visual name="gripper_base_hardware_black">                      <!-- 可视化元素：夹爪五金黑部分 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/visual/colored_gripper_base_hardware_black.stl" /> <!-- 加载五金黑 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="gripper_hardware_black" />                     <!-- 使用 gripper_hardware_black 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <visual name="gripper_base_metal">                               <!-- 可视化元素：夹爪金属部分 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/visual/colored_gripper_base_metal.stl" /> <!-- 加载金属色 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="gripper_base_metal" />                         <!-- 使用 gripper_base_metal 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <collision>                                                      <!-- 碰撞体定义块开始 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 碰撞体相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/collision/gripper_base.stl" />     <!-- 加载夹爪底座碰撞 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+    </collision>                                                     <!-- 碰撞体定义块结束 -->
+  </link>                                                            <!-- 连杆 end_link 定义结束 -->
+
+
+  <joint name="end_joint" type="fixed">                              <!-- 定义关节：end_joint，固定连接 -->
+    <origin xyz="0 0 0.15539" rpy="0 -1.5708 3.1415" />              <!-- 相对父 link：Z 上移 15.539cm，绕 Y -90°、绕 Z 180° -->
+    <parent link="link6" />                                          <!-- 父连杆：link6 -->
+    <child link="end_link" />                                        <!-- 子连杆：end_link -->
+    <axis xyz="0 0 0" />                                             <!-- 固定关节无轴，填 0 -->
+  </joint>                                                           <!-- 关节 end_joint 定义结束 -->
+
+
+  <link name="finger_left_link">                                     <!-- 定义连杆：左手指 -->
+    <visual name="finger_left_body">                                 <!-- 可视化元素：手指本体 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/visual/colored_left_finger_finger_black.stl" /> <!-- 加载左手指黑色 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="gripper_finger_black" />                       <!-- 使用 gripper_finger_black 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <visual name="finger_left_carriage">                             <!-- 可视化元素：滑架 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/shared/colored_left_finger_carriage_grey.stl" /> <!-- 加载滑架灰色 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="gripper_carriage_grey" />                      <!-- 使用 gripper_carriage_grey 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <visual name="finger_left_travel_stop">                          <!-- 可视化元素：行程限位 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/shared/colored_left_finger_travel_stop_yellow.stl" /> <!-- 加载限位黄色 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="gripper_seeed_yellow" />                       <!-- 使用 gripper_seeed_yellow 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <visual name="finger_left_crossed_rack">                         <!-- 可视化元素：交叉齿条 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/visual/colored_left_finger_rack_metal.stl" /> <!-- 加载齿条金属 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="gripper_rack_metal" />                         <!-- 使用 gripper_rack_metal 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <collision>                                                      <!-- 碰撞体定义块开始 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 碰撞体相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/collision/left_finger.stl" />      <!-- 加载左手指碰撞 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+    </collision>                                                     <!-- 碰撞体定义块结束 -->
+  </link>                                                            <!-- 连杆 finger_left_link 定义结束 -->
+
+
+  <joint name="finger_left" type="prismatic">                        <!-- 定义关节：finger_left，移动关节 -->
+    <origin xyz="0 0 0" rpy="0 0 0" />                               <!-- 相对父 link 原点无变换 -->
+    <parent link="end_link" />                                       <!-- 父连杆：end_link -->
+    <child link="finger_left_link" />                                <!-- 子连杆：finger_left_link -->
+    <axis xyz="0 1 0" />                                             <!-- 移动轴：Y 轴 -->
+    <limit lower="0" upper="0.05" effort="8" velocity="0.08" />      <!-- 限位：0~0.05m，力 8N，速度 0.08m/s -->
+  </joint>                                                           <!-- 关节 finger_left 定义结束 -->
+
+
+  <link name="finger_right_link">                                    <!-- 定义连杆：右手指 -->
+    <visual name="finger_right_body">                                <!-- 可视化元素：手指本体 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/visual/colored_right_finger_finger_black.stl" /> <!-- 加载右手指黑色 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="gripper_finger_black" />                       <!-- 使用 gripper_finger_black 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <visual name="finger_right_carriage">                            <!-- 可视化元素：滑架 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/shared/colored_right_finger_carriage_grey.stl" /> <!-- 加载滑架灰色 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="gripper_carriage_grey" />                      <!-- 使用 gripper_carriage_grey 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <visual name="finger_right_travel_stop">                         <!-- 可视化元素：行程限位 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/shared/colored_right_finger_travel_stop_yellow.stl" /> <!-- 加载限位黄色 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="gripper_seeed_yellow" />                       <!-- 使用 gripper_seeed_yellow 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <visual name="finger_right_crossed_rack">                        <!-- 可视化元素：交叉齿条 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/visual/colored_right_finger_rack_metal.stl" /> <!-- 加载齿条金属 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="gripper_rack_metal" />                         <!-- 使用 gripper_rack_metal 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <collision>                                                      <!-- 碰撞体定义块开始 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 碰撞体相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/collision/right_finger.stl" />     <!-- 加载右手指碰撞 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+    </collision>                                                     <!-- 碰撞体定义块结束 -->
+  </link>                                                            <!-- 连杆 finger_right_link 定义结束 -->
+
+
+  <joint name="finger_right" type="prismatic">                       <!-- 定义关节：finger_right，移动关节（从动） -->
+    <origin xyz="0 0 0" rpy="0 0 0" />                               <!-- 相对父 link 原点无变换 -->
+    <parent link="end_link" />                                       <!-- 父连杆：end_link -->
+    <child link="finger_right_link" />                               <!-- 子连杆：finger_right_link -->
+    <axis xyz="0 1 0" />                                             <!-- 移动轴：Y 轴 -->
+    <limit lower="-0.05" upper="0" effort="8" velocity="0.08" />     <!-- 限位：-0.05~0m，力 8N，速度 0.08m/s -->
+    <mimic joint="finger_left" multiplier="-1" offset="0" />         <!-- 从动于 finger_left，乘数 -1 实现反向对称运动 -->
+  </joint>                                                           <!-- 关节 finger_right 定义结束 -->
+
+</robot>                                                             <!-- 机器人根节点结束 -->

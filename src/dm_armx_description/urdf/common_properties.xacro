@@ -1,0 +1,50 @@
+<?xml version='1.0' encoding='utf-8'?>                              <!-- XML 声明：版本 1.0，编码 UTF-8 -->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">                                         <!-- 机器人根节点，模型名称为 ReBot_Arm_DM -->
+
+
+  <material name="gripper_finger_black">                             <!-- 定义材质：夹爪手指黑色 -->
+    <color rgba="0.066667 0.074510 0.070588 1" />                    <!-- RGBA 颜色：深黑，不透明 -->
+  </material>                                                        <!-- 材质定义结束 -->
+
+  <material name="gripper_carriage_grey">                            <!-- 定义材质：夹爪滑架灰色 -->
+    <color rgba="0.239 0.278 0.271 1" />                             <!-- RGBA：深灰绿色，不透明 -->
+  </material>                                                        <!-- 材质定义结束 -->
+
+  <material name="gripper_rack_metal">                               <!-- 定义材质：夹爪齿条金属色 -->
+    <color rgba="0.831373 0.847059 0.831373 1" />                    <!-- RGBA：浅金属灰，不透明 -->
+  </material>                                                        <!-- 材质定义结束 -->
+
+  <material name="gripper_seeed_yellow">                             <!-- 定义材质：夹爪 Seeed 黄色 -->
+    <color rgba="0.725 0.835 0.118 1" />                             <!-- RGBA：品牌黄绿色，不透明 -->
+  </material>                                                        <!-- 材质定义结束 -->
+
+  <material name="gripper_hardware_black">                           <!-- 定义材质：夹爪五金件黑色 -->
+    <color rgba="0.019608 0.027451 0.023529 1" />                    <!-- RGBA：近纯黑，不透明 -->
+  </material>                                                        <!-- 材质定义结束 -->
+
+
+  <material name="gripper_base_metal">                               <!-- 定义材质：夹爪底座金属色 -->
+    <color rgba="0.831373 0.847059 0.831373 1" />                    <!-- RGBA：浅金属灰，不透明 -->
+  </material>                                                        <!-- 材质定义结束 -->
+
+  <material name="anodized_grey">                                    <!-- 定义材质：阳极氧化灰 -->
+    <color rgba="0.831373 0.847059 0.831373 1" />                    <!-- RGBA：浅金属灰，不透明 -->
+  </material>                                                        <!-- 材质定义结束 -->
+
+  <material name="silver_trim">                                      <!-- 定义材质：银色装饰 -->
+    <color rgba="0.878431 0.890196 0.874510 1" />                    <!-- RGBA：银色，不透明 -->
+  </material>                                                        <!-- 材质定义结束 -->
+
+  <material name="seeed_yellow">                                     <!-- 定义材质：Seeed 主黄色 -->
+    <color rgba="0.73 0.84 0.12 1" />                                <!-- RGBA：品牌黄绿色，不透明 -->
+  </material>                                                        <!-- 材质定义结束 -->
+
+  <material name="matte_black">                                      <!-- 定义材质：哑光黑 -->
+    <color rgba="0.066667 0.074510 0.070588 1" />                    <!-- RGBA：深黑，不透明 -->
+  </material>                                                        <!-- 材质定义结束 -->
+
+  <material name="hardware_black">                                   <!-- 定义材质：五金件黑 -->
+    <color rgba="0.019608 0.027451 0.023529 1" />                    <!-- RGBA：近纯黑，不透明 -->
+  </material>                                                        <!-- 材质定义结束 -->
+
+</robot>                                                             <!-- 机器人根节点结束 -->

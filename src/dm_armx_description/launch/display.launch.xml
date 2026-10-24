@@ -1,0 +1,21 @@
+<launch>
+    <!-- 规避 GNOME 50 Wayland 下 XWayland + 分数缩放导致的 RViz 闪烁 -->
+    <set_env name="QT_ENABLE_HIGHDPI_SCALING" value="0"/>
+    <set_env name="QT_SCREEN_SCALE_FACTORS" value="1"/>
+    <set_env name="QT_AUTO_SCREEN_SCALE_FACTOR" value="0"/>
+    <set_env name="QT_QPA_PLATFORM" value="xcb"/>
+
+    <let name="urdf_path"
+         value="$(find-pkg-share dm_armx_description)/urdf/dm_armx.urdf.xacro"/>
+
+    <node pkg="robot_state_publisher" exec="robot_state_publisher" output="screen">
+        <param name="robot_description"
+               value="$(command 'xacro $(var urdf_path)')"
+               type="str"/>
+    </node>
+
+    <node pkg="joint_state_publisher_gui" exec="joint_state_publisher_gui"/>
+
+    <node pkg="rviz2" exec="rviz2" output="screen"
+          args="-d $(find-pkg-share dm_armx_description)/rviz/urdf.rviz"/>
+</launch>

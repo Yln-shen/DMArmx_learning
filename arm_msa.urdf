@@ -1,0 +1,600 @@
+<?xml version='1.0' encoding='utf-8'?>
+<robot name="DM_Armx">
+  
+  <material name="gripper_finger_black">
+    
+    <color rgba="0.066667 0.074510 0.070588 1" />
+    
+  </material>
+  
+  <material name="gripper_carriage_grey">
+    
+    <color rgba="0.239 0.278 0.271 1" />
+    
+  </material>
+  
+  <material name="gripper_rack_metal">
+    
+    <color rgba="0.831373 0.847059 0.831373 1" />
+    
+  </material>
+  
+  <material name="gripper_seeed_yellow">
+    
+    <color rgba="0.725 0.835 0.118 1" />
+    
+  </material>
+  
+  <material name="gripper_hardware_black">
+    
+    <color rgba="0.019608 0.027451 0.023529 1" />
+    
+  </material>
+  
+  <material name="gripper_base_metal">
+    
+    <color rgba="0.831373 0.847059 0.831373 1" />
+    
+  </material>
+  
+  <material name="anodized_grey">
+    
+    <color rgba="0.831373 0.847059 0.831373 1" />
+    
+  </material>
+  
+  <material name="silver_trim">
+    
+    <color rgba="0.878431 0.890196 0.874510 1" />
+    
+  </material>
+  
+  <material name="seeed_yellow">
+    
+    <color rgba="0.73 0.84 0.12 1" />
+    
+  </material>
+  
+  <material name="matte_black">
+    
+    <color rgba="0.066667 0.074510 0.070588 1" />
+    
+  </material>
+  
+  <material name="hardware_black">
+    
+    <color rgba="0.019608 0.027451 0.023529 1" />
+    
+  </material>
+  
+  
+  <link name="base_link">
+    
+    <inertial>
+      
+      <origin rpy="0 0 0" xyz="-7.849E-06 -1.1531E-06 0.029841" />
+      
+      <mass value="0.83660000" />
+      
+      <inertia ixx="0.00133040" ixy="0.00000001" ixz="0.00000000" iyy="0.00213119" iyz="0.00000000" izz="0.00275877" />
+      
+    </inertial>
+    
+    <visual name="base_link_silver_trim">
+      
+      <origin rpy="0 0 0" xyz="0.000000 0.000000 0.079475" />
+      
+      <geometry>
+        
+        <box size="0.092000 0.092000 0.010350" /></geometry>
+      
+      <material name="silver_trim" />
+      
+    </visual>
+    
+    <visual name="base_link_hardware_black">
+      
+      <origin rpy="0 0 0" xyz="0.000000 0.000000 0.045075" />
+      
+      <geometry>
+        
+        <box size="0.077700 0.077637 0.085150" /></geometry>
+      
+      <material name="hardware_black" />
+      
+    </visual>
+    
+    <visual name="base_link_matte_black">
+      
+      <origin rpy="0 0 0" xyz="0.000000 0.000000 0.042075" />
+      
+      <geometry>
+        
+        <box size="0.140000 0.200000 0.084150" /></geometry>
+      
+      <material name="matte_black" />
+      
+    </visual>
+    
+    <collision>
+      
+      <origin rpy="0 0 0" xyz="0.000000 0.000000 0.041325" />
+      
+      <geometry>
+        
+        <box size="0.140000 0.200000 0.082650" /></geometry>
+      
+    </collision>
+    
+  </link>
+  
+  <link name="link1">
+    
+    <inertial>
+      
+      <origin rpy="0 0 0" xyz="0.000113614552951627 -0.000616319527051323 0.0236476372671394" />
+      
+      <mass value="0.16130000" />
+      
+      <inertia ixx="0.00025207" ixy="0.00000000" ixz="-0.00002832" iyy="0.00015464" iyz="0.00000000" izz="0.00023416" />
+      
+    </inertial>
+    
+    <visual name="link1_matte_black">
+      
+      <origin rpy="0 0 0" xyz="0.020084 0.000030 0.055550" />
+      
+      <geometry>
+        
+        <box size="0.034800 0.071190 0.034796" /></geometry>
+      
+      <material name="matte_black" />
+      
+    </visual>
+    
+    <visual name="link1_hardware_black">
+      
+      <origin rpy="0 0 0" xyz="-0.023077 0.000000 0.012421" />
+      
+      <geometry>
+        
+        <box size="0.021193 0.071240 0.018842" /></geometry>
+      
+      <material name="hardware_black" />
+      
+    </visual>
+    
+    <visual name="link1_anodized_grey">
+      
+      <origin rpy="0 0 0" xyz="0.006683 0.000000 0.041960" />
+      
+      <geometry>
+        
+        <box size="0.083765 0.077250 0.083919" /></geometry>
+      
+      <material name="anodized_grey" />
+      
+    </visual>
+    
+    <collision>
+      
+      <origin rpy="0 0 0" xyz="0.005075 0.000000 0.038410" />
+      
+      <geometry>
+        
+        <box size="0.086981 0.077250 0.091019" /></geometry>
+      
+    </collision>
+    
+  </link>
+  
+  <joint name="joint1" type="revolute">
+    
+    <origin rpy="0 0 0" xyz="-8.416E-05 0 0.08465" />
+    
+    <parent link="base_link" />
+    
+    <child link="link1" />
+    
+    <axis xyz="0 0 1" />
+    
+    <limit effort="27" lower="-2.8" upper="2.8" velocity="50" />
+    
+  </joint>
+  
+  <link name="link2">
+    
+    <inertial>
+      
+      <origin rpy="0 0 0" xyz="-0.13225622308888 -0.0030617036386309 -0.0308306967030205" />
+      
+      <mass value="1.32660000" />
+      
+      <inertia ixx="0.00073374" ixy="-0.00000043" ixz="0.00000851" iyy="0.01255987" iyz="0.00000128" izz="0.01281387" />
+      
+    </inertial>
+    
+    <visual name="link2_seeed_yellow">
+      
+      <origin rpy="0 0 0" xyz="-0.149420 -0.002364 -0.031625" />
+      
+      <geometry>
+        
+        <box size="0.100838 0.027729 0.067350" /></geometry>
+      
+      <material name="seeed_yellow" />
+      
+    </visual>
+    
+    <visual name="link2_matte_black">
+      
+      <origin rpy="0 0 0" xyz="-0.132000 0.000000 -0.031625" />
+      
+      <geometry>
+        
+        <box size="0.321000 0.057000 0.067350" /></geometry>
+      
+      <material name="matte_black" />
+      
+    </visual>
+    
+    <visual name="link2_hardware_black">
+      
+      <origin rpy="0 0 0" xyz="-0.132000 0.000000 -0.031625" />
+      
+      <geometry>
+        
+        <box size="0.320000 0.049301 0.065750" /></geometry>
+      
+      <material name="hardware_black" />
+      
+    </visual>
+    
+    <visual name="link2_anodized_grey">
+      
+      <origin rpy="0 0 0" xyz="-0.132000 0.000000 -0.031625" />
+      
+      <geometry>
+        
+        <box size="0.320954 0.057000 0.065750" /></geometry>
+      
+      <material name="anodized_grey" />
+      
+    </visual>
+    
+    <collision>
+      
+      <origin rpy="0 0 0" xyz="-0.132000 0.000000 -0.031625" />
+      
+      <geometry>
+        
+        <box size="0.321000 0.057000 0.067350" /></geometry>
+      
+    </collision>
+    
+  </link>
+  
+  <joint name="joint2" type="revolute">
+    
+    <origin rpy="-1.5708 0 0" xyz="0.020084 0.031625 0.05555" />
+    
+    <parent link="link1" />
+    
+    <child link="link2" />
+    
+    <axis xyz="0 0 -1" />
+    
+    <limit effort="27" lower="-3.14" upper="0" velocity="50" />
+    
+  </joint>
+  
+  <link name="link3">
+    
+    <inertial>
+      
+      <origin rpy="0 0 0" xyz="0.121040035791843 -0.0536211076627949 -0.0310137854608077" />
+      
+      <mass value="0.83530000" />
+      
+      <inertia ixx="0.00046807" ixy="-0.00003456" ixz="-0.00004260" iyy="0.00632695" iyz="0.00000006" izz="0.00648221" />
+      
+    </inertial>
+    
+    <visual name="link3_seeed_yellow">
+      
+      <origin rpy="0 0 0" xyz="0.125276 -0.058600 -0.031625" />
+      
+      <geometry>
+        
+        <box size="0.126073 0.033800 0.057800" /></geometry>
+      
+      <material name="seeed_yellow" />
+      
+    </visual>
+    
+    <visual name="link3_matte_black">
+      
+      <origin rpy="0 0 0" xyz="0.126850 -0.032557 -0.031595" />
+      
+      <geometry>
+        
+        <box size="0.288500 0.099886 0.071190" /></geometry>
+      
+      <material name="matte_black" />
+      
+    </visual>
+    
+    <visual name="link3_hardware_black">
+      
+      <origin rpy="0 0 0" xyz="0.122930 -0.031980 -0.031125" />
+      
+      <geometry>
+        
+        <box size="0.295340 0.093342 0.080250" /></geometry>
+      
+      <material name="hardware_black" />
+      
+    </visual>
+    
+    <visual name="link3_anodized_grey">
+      
+      <origin rpy="0 0 0" xyz="0.122177 -0.029994 -0.031125" />
+      
+      <geometry>
+        
+        <box size="0.297713 0.104987 0.080250" /></geometry>
+      
+      <material name="anodized_grey" />
+      
+    </visual>
+    
+    <collision>
+      
+      <origin rpy="0 0 0" xyz="0.122210 -0.030000 -0.031125" />
+      
+      <geometry>
+        
+        <box size="0.297780 0.105000 0.080250" /></geometry>
+      
+    </collision>
+    
+  </link>
+  
+  <joint name="joint3" type="revolute">
+    
+    <origin rpy="0 0 0" xyz="-0.264 0 0" />
+    
+    <parent link="link2" />
+    
+    <child link="link3" />
+    
+    <axis xyz="0 0 1" />
+    
+    <limit effort="27" lower="-3.14" upper="0" velocity="50" />
+    
+  </joint>
+  
+  <link name="link4">
+    
+    <inertial>
+      
+      <origin rpy="0 0 0" xyz="0.0608200956293136 -0.0511711906613122 -0.030299458623927" />
+      
+      <mass value="0.52000000" />
+      
+      <inertia ixx="0.00045986" ixy="0.00024219" ixz="-0.00000672" iyy="0.00075258" iyz="-0.00000535" izz="0.00066742" />
+      
+    </inertial>
+    
+    <visual name="link4_seeed_yellow">
+      
+      <origin rpy="0 0 0" xyz="0.070376 -0.062000 -0.030000" />
+      
+      <geometry>
+        
+        <box size="0.094752 0.033000 0.062996" /></geometry>
+      
+      <material name="matte_black" />
+      
+    </visual>
+    
+    <visual name="link4_matte_black">
+      
+      <origin rpy="0 0 0" xyz="0.050176 -0.035300 -0.030000" />
+      
+      <geometry>
+        
+        <box size="0.135151 0.105400 0.063000" /></geometry>
+      
+      <material name="matte_black" />
+      
+    </visual>
+    
+    <visual name="link4_hardware_black">
+      
+      <origin rpy="0 0 0" xyz="0.039123 -0.035750 -0.030000" />
+      
+      <geometry>
+        
+        <box size="0.111240 0.104499 0.066760" /></geometry>
+      
+      <material name="hardware_black" />
+      
+    </visual>
+    
+    <visual name="link4_anodized_grey">
+      
+      <origin rpy="0 0 0" xyz="0.042942 -0.013533 -0.030000" />
+      
+      <geometry>
+        
+        <box size="0.141952 0.082896 0.066760" /></geometry>
+      
+      <material name="anodized_grey" />
+      
+    </visual>
+    
+    <collision>
+      
+      <origin rpy="0 0 0" xyz="0.044859 -0.030043 -0.030000" />
+      
+      <geometry>
+        
+        <box size="0.145785 0.115915 0.066760" /></geometry>
+      
+    </collision>
+    
+  </link>
+  
+  <joint name="joint4" type="revolute">
+    
+    <origin rpy="0 0 0" xyz="0.2426 -0.054 -0.001625" />
+    
+    <parent link="link3" />
+    
+    <child link="link4" />
+    
+    <axis xyz="0 0 1" />
+    
+    <limit effort="7" lower="-1.87" upper="1.57" velocity="200" />
+    
+  </joint>
+  
+  <link name="link5">
+    
+    <inertial>
+      
+      <origin rpy="0 0 0" xyz="-0.00502802058982517 1.73866206692364E-06 0.0386233236326755" />
+      
+      <mass value="0.38300000" />
+      
+      <inertia ixx="0.00019772" ixy="-0.00000062" ixz="-0.00002426" iyy="0.00021737" iyz="0.00000002" izz="0.00017191" />
+      
+    </inertial>
+    
+    <visual name="link5_matte_black">
+      
+      <origin rpy="0 0 0" xyz="0.000692 0.000000 0.033250" />
+      
+      <geometry>
+        
+        <box size="0.046000 0.057000 0.070500" /></geometry>
+      
+      <material name="matte_black" />
+      
+    </visual>
+    
+    <visual name="link5_hardware_black">
+      
+      <origin rpy="0 0 0" xyz="-0.011558 0.000000 0.035520" />
+      
+      <geometry>
+        
+        <box size="0.052499 0.070343 0.085040" /></geometry>
+      
+      <material name="hardware_black" />
+      
+    </visual>
+    
+    <visual name="link5_anodized_grey">
+      
+      <origin rpy="0 0 0" xyz="0.002192 0.000000 0.036900" />
+      
+      <geometry>
+        
+        <box size="0.060000 0.077000 0.069800" /></geometry>
+      
+      <material name="anodized_grey" />
+      
+    </visual>
+    
+    <collision>
+      
+      <origin rpy="0 0 0" xyz="-0.002808 0.000000 0.038020" />
+      
+      <geometry>
+        
+        <box size="0.070000 0.077000 0.080040" /></geometry>
+      
+    </collision>
+    
+  </link>
+  
+  <joint name="joint5" type="revolute">
+    
+    <origin rpy="-1.5708 0 0" xyz="0.078308 -0.0375 -0.03" />
+    
+    <parent link="link4" />
+    
+    <child link="link5" />
+    
+    <axis xyz="0 0 1" />
+    
+    <limit effort="7" lower="-1.57" upper="1.57" velocity="200" />
+    
+  </joint>
+  
+  <link name="link6">
+    
+    <inertial>
+      
+      <origin rpy="0 0 0" xyz="3.76418727127126E-06 -0.000100908819946677 0.0253308606425965" />
+      
+      <mass value="0.36630000" />
+      
+      <inertia ixx="0.00015554" ixy="-0.00000" ixz="-0.00000" iyy="0.00015554" iyz="-0.0000" izz="0.00013966" />
+      
+    </inertial>
+    
+    <visual name="link6_matte_black">
+      
+      <origin rpy="0 0 0" xyz="0.000000 0.000000 0.024184" />
+      
+      <geometry>
+        
+        <box size="0.077000 0.063600 0.058000" /></geometry>
+      
+      <material name="matte_black" />
+      
+    </visual>
+    
+    <visual name="link6_hardware_black">
+      
+      <origin rpy="0 0 0" xyz="-0.000001 0.000001 0.008809" />
+      
+      <geometry>
+        
+        <box size="0.070341 0.045701 0.025750" /></geometry>
+      
+      <material name="hardware_black" />
+      
+    </visual>
+    
+    <collision>
+      
+      <origin rpy="0 0 0" xyz="0.000000 0.000000 0.004250" />
+      
+      <geometry>
+        
+        <box size="0.056800 0.056800 0.009500" /></geometry>
+      
+    </collision>
+    
+  </link>
+  
+  <joint name="joint6" type="revolute">
+    
+    <origin rpy="0 1.5708 0" xyz="0.028008 0 0.04" />
+    
+    <parent link="link5" />
+    
+    <child link="link6" />
+    
+    <axis xyz="0 0 1" />
+    
+    <limit effort="7" lower="-3.14" upper="3.14" velocity="200" />
+    
+  </joint>
+  
+  
+</robot>

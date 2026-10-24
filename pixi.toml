@@ -18,6 +18,9 @@ ros-lyrical-moveit = "*"
 ros-lyrical-moveit-configs-utils = "*"
 ros-lyrical-moveit-servo = "*"
 
+# URDF 教程
+ros-lyrical-urdf-tutorial = "*"
+
 # 构建工具
 colcon-common-extensions = "*"
 cmake = "*"
@@ -25,6 +28,24 @@ ninja = "*"
 make = "*"
 pkg-config = "*"
 compilers = "*"
+ros-lyrical-rqt-graph = ">=1.8.5,<2"
 
 [target.linux-64.dependencies]
 libgl-devel = "*"
+
+# 进入环境时自动 source 本工作空间的构建结果，
+# 否则 ros2/rviz 解析不到 package://dm_armx_description/... 的网格路径
+[target.unix.activation]
+scripts = ["install/setup.bash"]
+
+# GNOME 50 Wayland 下，RViz 走 XWayland；Qt 的 HiDPI 缩放与 GNOME 的
+# Legacy Apps 缩放叠加会导致 RViz 闪烁。这里对整个 pixi 环境统一关掉 Qt 缩放。
+[activation.env]
+QT_ENABLE_HIGHDPI_SCALING = "0"
+QT_SCREEN_SCALE_FACTORS = "1"
+QT_AUTO_SCREEN_SCALE_FACTOR = "0"
+QT_QPA_PLATFORM = "xcb"
+
+[tasks]
+# 启动 RViz 看机械臂模型；Qt 关掉 HiDPI 缩放以避免 GNOME 50 下 XWayland 闪烁
+urdf-demo = { cmd = "ros2 launch urdf_tutorial display.launch.py model:=$PIXI_PROJECT_ROOT/src/dm_armx_description/urdf/arm.urdf", env = { QT_ENABLE_HIGHDPI_SCALING = "0", QT_SCREEN_SCALE_FACTORS = "1", QT_AUTO_SCREEN_SCALE_FACTOR = "0", QT_QPA_PLATFORM = "xcb" } }

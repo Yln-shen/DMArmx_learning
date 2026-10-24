@@ -1,0 +1,508 @@
+<?xml version='1.0' encoding='utf-8'?>                              <!-- XML 声明：版本 1.0，编码 UTF-8 -->
+<robot name="ReBot_Arm_DM">                                          <!-- 机器人根节点，模型名称为 ReBot_Arm_DM -->
+
+
+  <material name="gripper_finger_black">                             <!-- 定义材质：夹爪手指黑色 -->
+    <color rgba="0.066667 0.074510 0.070588 1" />                    <!-- RGBA 颜色：深黑，不透明 -->
+  </material>                                                        <!-- 材质定义结束 -->
+
+  <material name="gripper_carriage_grey">                            <!-- 定义材质：夹爪滑架灰色 -->
+    <color rgba="0.239 0.278 0.271 1" />                             <!-- RGBA：深灰绿色，不透明 -->
+  </material>                                                        <!-- 材质定义结束 -->
+
+  <material name="gripper_rack_metal">                               <!-- 定义材质：夹爪齿条金属色 -->
+    <color rgba="0.831373 0.847059 0.831373 1" />                    <!-- RGBA：浅金属灰，不透明 -->
+  </material>                                                        <!-- 材质定义结束 -->
+
+  <material name="gripper_seeed_yellow">                             <!-- 定义材质：夹爪 Seeed 黄色 -->
+    <color rgba="0.725 0.835 0.118 1" />                             <!-- RGBA：品牌黄绿色，不透明 -->
+  </material>                                                        <!-- 材质定义结束 -->
+
+  <material name="gripper_hardware_black">                           <!-- 定义材质：夹爪五金件黑色 -->
+    <color rgba="0.019608 0.027451 0.023529 1" />                    <!-- RGBA：近纯黑，不透明 -->
+  </material>                                                        <!-- 材质定义结束 -->
+
+
+  <material name="gripper_base_metal">                               <!-- 定义材质：夹爪底座金属色 -->
+    <color rgba="0.831373 0.847059 0.831373 1" />                    <!-- RGBA：浅金属灰，不透明 -->
+  </material>                                                        <!-- 材质定义结束 -->
+
+  <material name="anodized_grey">                                    <!-- 定义材质：阳极氧化灰 -->
+    <color rgba="0.831373 0.847059 0.831373 1" />                    <!-- RGBA：浅金属灰，不透明 -->
+  </material>                                                        <!-- 材质定义结束 -->
+
+  <material name="silver_trim">                                      <!-- 定义材质：银色装饰 -->
+    <color rgba="0.878431 0.890196 0.874510 1" />                    <!-- RGBA：银色，不透明 -->
+  </material>                                                        <!-- 材质定义结束 -->
+
+  <material name="seeed_yellow">                                     <!-- 定义材质：Seeed 主黄色 -->
+    <color rgba="0.73 0.84 0.12 1" />                                <!-- RGBA：品牌黄绿色，不透明 -->
+  </material>                                                        <!-- 材质定义结束 -->
+
+  <material name="matte_black">                                      <!-- 定义材质：哑光黑 -->
+    <color rgba="0.066667 0.074510 0.070588 1" />                    <!-- RGBA：深黑，不透明 -->
+  </material>                                                        <!-- 材质定义结束 -->
+
+  <material name="hardware_black">                                   <!-- 定义材质：五金件黑 -->
+    <color rgba="0.019608 0.027451 0.023529 1" />                    <!-- RGBA：近纯黑，不透明 -->
+  </material>                                                        <!-- 材质定义结束 -->
+
+
+
+  <link name="base_link">                                            <!-- 定义连杆：基座 base_link -->
+    <inertial>                                                       <!-- 惯性参数块开始 -->
+      <origin xyz="-7.849E-06 -1.1531E-06 0.029841" rpy="0 0 0" />   <!-- 质心相对 link 原点：几乎在原点上方 2.98cm -->
+      <mass value="0.83660000" />                                    <!-- 质量：0.8366 kg -->
+      <inertia ixx="0.00133040" ixy="0.00000001" ixz="0.00000000" iyy="0.00213119" iyz="0.00000000" izz="0.00275877" /> <!-- 惯性张量 6 个分量 -->
+    </inertial>                                                      <!-- 惯性参数块结束 -->
+    <visual name="base_link_silver_trim">                            <!-- 可视化元素：银色装饰部分 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无平移无旋转 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/visual/colored_base_link_silver_trim.stl" /> <!-- 加载银色 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="silver_trim" />                                <!-- 使用 silver_trim 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <visual name="base_link_hardware_black">                         <!-- 可视化元素：五金件黑色部分 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/visual/colored_base_link_hardware_black.stl" /> <!-- 加载五金黑 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="hardware_black" />                             <!-- 使用 hardware_black 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <visual name="base_link_matte_black">                            <!-- 可视化元素：哑光黑部分 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/visual/colored_base_link_matte_black.stl" /> <!-- 加载哑光黑 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="matte_black" />                                <!-- 使用 matte_black 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <collision>                                                      <!-- 碰撞体定义块开始 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 碰撞体相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/collision/base_link.STL" />        <!-- 加载碰撞检测用 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+    </collision>                                                     <!-- 碰撞体定义块结束 -->
+  </link>                                                            <!-- 连杆 base_link 定义结束 -->
+
+
+  <link name="link1">                                                <!-- 定义连杆：link1（第 1 轴） -->
+    <inertial>                                                       <!-- 惯性参数块开始 -->
+      <origin xyz="0.000113614552951627 -0.000616319527051323 0.0236476372671394" rpy="0 0 0" /> <!-- 质心偏移 -->
+      <mass value="0.16130000" />                                    <!-- 质量：0.1613 kg -->
+      <inertia ixx="0.00025207" ixy="0.00000000" ixz="-0.00002832" iyy="0.00015464" iyz="0.00000000" izz="0.00023416" /> <!-- 惯性张量 -->
+    </inertial>                                                      <!-- 惯性参数块结束 -->
+    <visual name="link1_matte_black">                                <!-- 可视化元素：哑光黑部分 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/visual/colored_link1_matte_black.stl" /> <!-- 加载哑光黑 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="matte_black" />                                <!-- 使用 matte_black 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <visual name="link1_hardware_black">                             <!-- 可视化元素：五金件黑部分 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/visual/colored_link1_hardware_black.stl" /> <!-- 加载五金黑 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="hardware_black" />                             <!-- 使用 hardware_black 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <visual name="link1_anodized_grey">                              <!-- 可视化元素：阳极氧化灰部分 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/visual/colored_link1_anodized_grey.stl" /> <!-- 加载氧化灰 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="anodized_grey" />                              <!-- 使用 anodized_grey 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <collision>                                                      <!-- 碰撞体定义块开始 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 碰撞体相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/collision/link1.STL" />            <!-- 加载碰撞检测用 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+    </collision>                                                     <!-- 碰撞体定义块结束 -->
+  </link>                                                            <!-- 连杆 link1 定义结束 -->
+
+  <joint name="joint1" type="revolute">                              <!-- 定义关节：joint1，旋转关节 -->
+    <origin xyz="-8.416E-05 0 0.08465" rpy="0 0 0" />                <!-- 关节相对父 link 的位姿：Z 上移 8.465cm -->
+    <parent link="base_link" />                                      <!-- 父连杆：base_link -->
+    <child link="link1" />                                           <!-- 子连杆：link1 -->
+    <axis xyz="0 0 1" />                                             <!-- 旋转轴：Z 轴 -->
+    <limit lower="-2.8" upper="2.8" effort="27" velocity="50" />     <!-- 限位：±2.8rad，力矩 27N·m，速度 50rad/s -->
+  </joint>                                                           <!-- 关节 joint1 定义结束 -->
+
+
+  <link name="link2">                                                <!-- 定义连杆：link2（第 2 轴，大臂） -->
+    <inertial>                                                       <!-- 惯性参数块开始 -->
+      <origin xyz="-0.13225622308888 -0.0030617036386309 -0.0308306967030205" rpy="0 0 0" /> <!-- 质心偏移 -->
+      <mass value="1.32660000" />                                    <!-- 质量：1.3266 kg（最重连杆） -->
+      <inertia ixx="0.00073374" ixy="-0.00000043" ixz="0.00000851" iyy="0.01255987" iyz="0.00000128" izz="0.01281387" /> <!-- 惯性张量 -->
+    </inertial>                                                      <!-- 惯性参数块结束 -->
+    <visual name="link2_seeed_yellow">                               <!-- 可视化元素：Seeed 黄色部分 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/visual/colored_link2_seeed_yellow.stl" /> <!-- 加载黄色 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="seeed_yellow" />                               <!-- 使用 seeed_yellow 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <visual name="link2_matte_black">                                <!-- 可视化元素：哑光黑部分 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/visual/colored_link2_matte_black.stl" /> <!-- 加载哑光黑 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="matte_black" />                                <!-- 使用 matte_black 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <visual name="link2_hardware_black">                             <!-- 可视化元素：五金件黑部分 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/visual/colored_link2_hardware_black.stl" /> <!-- 加载五金黑 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="hardware_black" />                             <!-- 使用 hardware_black 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <visual name="link2_anodized_grey">                              <!-- 可视化元素：阳极氧化灰部分 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/visual/colored_link2_anodized_grey.stl" /> <!-- 加载氧化灰 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="anodized_grey" />                              <!-- 使用 anodized_grey 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <collision>                                                      <!-- 碰撞体定义块开始 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 碰撞体相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/collision/link2.STL" />            <!-- 加载碰撞检测用 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+    </collision>                                                     <!-- 碰撞体定义块结束 -->
+  </link>                                                            <!-- 连杆 link2 定义结束 -->
+
+
+  <joint name="joint2" type="revolute">                              <!-- 定义关节：joint2，旋转关节（肩部） -->
+    <origin xyz="0.020084 0.031625 0.05555" rpy="-1.5708 0 0" />     <!-- 相对父 link 位姿：绕 X 轴 -90° -->
+    <parent link="link1" />                                          <!-- 父连杆：link1 -->
+    <child link="link2" />                                           <!-- 子连杆：link2 -->
+    <axis xyz="0 0 -1" />                                            <!-- 旋转轴：负 Z 轴（经父坐标系旋转后对应世界 Y） -->
+    <limit lower="-3.14" upper="0" effort="27" velocity="50" />      <!-- 限位：-π~0，力矩 27N·m，速度 50rad/s -->
+  </joint>                                                           <!-- 关节 joint2 定义结束 -->
+
+
+  <link name="link3">                                                <!-- 定义连杆：link3（第 3 轴，小臂） -->
+    <inertial>                                                       <!-- 惯性参数块开始 -->
+      <origin xyz="0.121040035791843 -0.0536211076627949 -0.0310137854608077" rpy="0 0 0" /> <!-- 质心偏移 -->
+      <mass value="0.83530000" />                                    <!-- 质量：0.8353 kg -->
+      <inertia ixx="0.00046807" ixy="-0.00003456" ixz="-0.00004260" iyy="0.00632695" iyz="0.00000006" izz="0.00648221" /> <!-- 惯性张量 -->
+    </inertial>                                                      <!-- 惯性参数块结束 -->
+    <visual name="link3_seeed_yellow">                               <!-- 可视化元素：Seeed 黄色部分 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/visual/colored_link3_seeed_yellow.stl" /> <!-- 加载黄色 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="seeed_yellow" />                               <!-- 使用 seeed_yellow 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <visual name="link3_matte_black">                                <!-- 可视化元素：哑光黑部分 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/visual/colored_link3_matte_black.stl" /> <!-- 加载哑光黑 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="matte_black" />                                <!-- 使用 matte_black 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <visual name="link3_hardware_black">                             <!-- 可视化元素：五金件黑部分 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/visual/colored_link3_hardware_black.stl" /> <!-- 加载五金黑 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="hardware_black" />                             <!-- 使用 hardware_black 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <visual name="link3_anodized_grey">                              <!-- 可视化元素：阳极氧化灰部分 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/visual/colored_link3_anodized_grey.stl" /> <!-- 加载氧化灰 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="anodized_grey" />                              <!-- 使用 anodized_grey 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <collision>                                                      <!-- 碰撞体定义块开始 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 碰撞体相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/collision/link3.STL" />            <!-- 加载碰撞检测用 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+    </collision>                                                     <!-- 碰撞体定义块结束 -->
+  </link>                                                            <!-- 连杆 link3 定义结束 -->
+  
+
+  <joint name="joint3" type="revolute">                              <!-- 定义关节：joint3，旋转关节（肘部） -->
+    <origin xyz="-0.264 0 0" rpy="0 0 0" />                          <!-- 相对父 link：沿 -X 平移 26.4cm（大臂长） -->
+    <parent link="link2" />                                          <!-- 父连杆：link2 -->
+    <child link="link3" />                                           <!-- 子连杆：link3 -->
+    <axis xyz="0 0 1" />                                             <!-- 旋转轴：Z 轴 -->
+    <limit lower="-3.14" upper="0" effort="27" velocity="50" />      <!-- 限位：-π~0，力矩 27N·m，速度 50rad/s -->
+  </joint>                                                           <!-- 关节 joint3 定义结束 -->
+
+
+  <link name="link4">                                                <!-- 定义连杆：link4（第 4 轴，腕部） -->
+    <inertial>                                                       <!-- 惯性参数块开始 -->
+      <origin xyz="0.0608200956293136 -0.0511711906613122 -0.030299458623927" rpy="0 0 0" /> <!-- 质心偏移 -->
+      <mass value="0.52000000" />                                    <!-- 质量：0.52 kg -->
+      <inertia ixx="0.00045986" ixy="0.00024219" ixz="-0.00000672" iyy="0.00075258" iyz="-0.00000535" izz="0.00066742" /> <!-- 惯性张量 -->
+    </inertial>                                                      <!-- 惯性参数块结束 -->
+    <visual name="link4_seeed_yellow">                               <!-- 可视化元素：黄色部分（注意材质误写为 matte_black） -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/visual/colored_link4_seeed_yellow.stl" /> <!-- 加载黄色 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="matte_black" />                                <!-- 此处材质应为 seeed_yellow，疑似笔误 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <visual name="link4_matte_black">                                <!-- 可视化元素：哑光黑部分 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/visual/colored_link4_matte_black.stl" /> <!-- 加载哑光黑 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="matte_black" />                                <!-- 使用 matte_black 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <visual name="link4_hardware_black">                             <!-- 可视化元素：五金件黑部分 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/visual/colored_link4_hardware_black.stl" /> <!-- 加载五金黑 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="hardware_black" />                             <!-- 使用 hardware_black 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <visual name="link4_anodized_grey">                              <!-- 可视化元素：阳极氧化灰部分 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/visual/colored_link4_anodized_grey.stl" /> <!-- 加载氧化灰 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="anodized_grey" />                              <!-- 使用 anodized_grey 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <collision>                                                      <!-- 碰撞体定义块开始 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 碰撞体相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/collision/link4.STL" />            <!-- 加载碰撞检测用 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+    </collision>                                                     <!-- 碰撞体定义块结束 -->
+  </link>                                                            <!-- 连杆 link4 定义结束 -->
+  <joint name="joint4" type="revolute">                              <!-- 定义关节：joint4，旋转关节（腕旋转） -->
+    <origin xyz="0.2426 -0.054 -0.001625" rpy="0 0 0" />             <!-- 相对父 link：沿 X 24.26cm 等偏移 -->
+    <parent link="link3" />                                          <!-- 父连杆：link3 -->
+    <child link="link4" />                                           <!-- 子连杆：link4 -->
+    <axis xyz="0 0 1" />                                             <!-- 旋转轴：Z 轴 -->
+    <limit lower="-1.87" upper="1.57" effort="7" velocity="200" />   <!-- 限位：-1.87~1.57rad，力矩 7N·m，速度 200rad/s -->
+  </joint>                                                           <!-- 关节 joint4 定义结束 -->
+
+
+  <link name="link5">                                                <!-- 定义连杆：link5（第 5 轴，腕俯仰） -->
+    <inertial>                                                       <!-- 惯性参数块开始 -->
+      <origin xyz="-0.00502802058982517 1.73866206692364E-06 0.0386233236326755" rpy="0 0 0" /> <!-- 质心偏移 -->
+      <mass value="0.38300000" />                                    <!-- 质量：0.383 kg -->
+      <inertia ixx="0.00019772" ixy="-0.00000062" ixz="-0.00002426" iyy="0.00021737" iyz="0.00000002" izz="0.00017191" /> <!-- 惯性张量 -->
+    </inertial>                                                      <!-- 惯性参数块结束 -->
+    <visual name="link5_matte_black">                                <!-- 可视化元素：哑光黑部分 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/visual/colored_link5_matte_black.stl" /> <!-- 加载哑光黑 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="matte_black" />                                <!-- 使用 matte_black 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <visual name="link5_hardware_black">                             <!-- 可视化元素：五金件黑部分 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/visual/colored_link5_hardware_black.stl" /> <!-- 加载五金黑 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="hardware_black" />                             <!-- 使用 hardware_black 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <visual name="link5_anodized_grey">                              <!-- 可视化元素：阳极氧化灰部分 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/visual/colored_link5_anodized_grey.stl" /> <!-- 加载氧化灰 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="anodized_grey" />                              <!-- 使用 anodized_grey 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <collision>                                                      <!-- 碰撞体定义块开始 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 碰撞体相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/collision/link5.STL" />            <!-- 加载碰撞检测用 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+    </collision>                                                     <!-- 碰撞体定义块结束 -->
+  </link>                                                            <!-- 连杆 link5 定义结束 -->
+
+
+  <joint name="joint5" type="revolute">                              <!-- 定义关节：joint5，旋转关节（腕俯仰） -->
+    <origin xyz="0.078308 -0.0375 -0.03" rpy="-1.5708 0 0" />        <!-- 相对父 link 位姿：绕 X 轴 -90° -->
+    <parent link="link4" />                                          <!-- 父连杆：link4 -->
+    <child link="link5" />                                           <!-- 子连杆：link5 -->
+    <axis xyz="0 0 1" />                                             <!-- 旋转轴：Z 轴 -->
+    <limit lower="-1.57" upper="1.57" effort="7" velocity="200" />   <!-- 限位：±1.57rad，力矩 7N·m，速度 200rad/s -->
+  </joint>                                                           <!-- 关节 joint5 定义结束 -->
+
+
+  <link name="link6">                                                <!-- 定义连杆：link6（第 6 轴，末端旋转） -->
+    <inertial>                                                       <!-- 惯性参数块开始 -->
+      <origin xyz="3.76418727127126E-06 -0.000100908819946677 0.0253308606425965" rpy="0 0 0" /> <!-- 质心偏移 -->
+      <mass value="0.36630000" />                                    <!-- 质量：0.3663 kg -->
+      <inertia ixx="0.00015554" ixy="-0.00000" ixz="-0.00000" iyy="0.00015554" iyz="-0.0000" izz="0.00013966" /> <!-- 惯性张量 -->
+    </inertial>                                                      <!-- 惯性参数块结束 -->
+    <visual name="link6_matte_black">                                <!-- 可视化元素：哑光黑部分 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/visual/colored_link6_matte_black.stl" /> <!-- 加载哑光黑 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="matte_black" />                                <!-- 使用 matte_black 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <visual name="link6_hardware_black">                             <!-- 可视化元素：五金件黑部分 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/visual/colored_link6_hardware_black.stl" /> <!-- 加载五金黑 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="hardware_black" />                             <!-- 使用 hardware_black 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <collision>                                                      <!-- 碰撞体定义块开始 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 碰撞体相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/collision/link6.STL" />            <!-- 加载碰撞检测用 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+    </collision>                                                     <!-- 碰撞体定义块结束 -->
+  </link>                                                            <!-- 连杆 link6 定义结束 -->
+
+
+  <joint name="joint6" type="revolute">                              <!-- 定义关节：joint6，旋转关节（末端旋转） -->
+    <origin xyz="0.028008 0 0.04" rpy="0 1.5708 0" />                <!-- 相对父 link 位姿：绕 Y 轴 +90° -->
+    <parent link="link5" />                                          <!-- 父连杆：link5 -->
+    <child link="link6" />                                           <!-- 子连杆：link6 -->
+    <axis xyz="0 0 1" />                                             <!-- 旋转轴：Z 轴 -->
+    <limit lower="-3.14" upper="3.14" effort="7" velocity="200" />   <!-- 限位：±π（全周），力矩 7N·m，速度 200rad/s -->
+  </joint>                                                           <!-- 关节 joint6 定义结束 -->
+
+
+  <link name="end_link">                                             <!-- 定义连杆：end_link（末端/夹爪底座） -->
+    <inertial>                                                       <!-- 惯性参数块开始 -->
+      <origin xyz="-0.0737654295815033 -9.5080995865868E-06 7.04327840286845E-06" rpy="0 0 0" /> <!-- 质心偏移：沿 -X 约 7.4cm -->
+      <mass value="0.5000000" />                                     <!-- 质量：0.5 kg -->
+      <inertia ixx="0.00037354" ixy="-0.00000011" ixz="0.00000050" iyy="0.00015830" iyz="0.00000348" izz="0.00045353" /> <!-- 惯性张量 -->
+    </inertial>                                                      <!-- 惯性参数块结束 -->
+    <visual name="gripper_base_seeed_yellow">                        <!-- 可视化元素：夹爪黄色部分 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/visual/colored_gripper_base_seeed_yellow.stl" /> <!-- 加载黄色 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="gripper_seeed_yellow" />                       <!-- 使用 gripper_seeed_yellow 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <visual name="gripper_base_hardware_black">                      <!-- 可视化元素：夹爪五金黑部分 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/visual/colored_gripper_base_hardware_black.stl" /> <!-- 加载五金黑 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="gripper_hardware_black" />                     <!-- 使用 gripper_hardware_black 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <visual name="gripper_base_metal">                               <!-- 可视化元素：夹爪金属部分 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/visual/colored_gripper_base_metal.stl" /> <!-- 加载金属色 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="gripper_base_metal" />                         <!-- 使用 gripper_base_metal 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <collision>                                                      <!-- 碰撞体定义块开始 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 碰撞体相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/collision/gripper_base.stl" />     <!-- 加载夹爪底座碰撞 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+    </collision>                                                     <!-- 碰撞体定义块结束 -->
+  </link>                                                            <!-- 连杆 end_link 定义结束 -->
+
+
+  <joint name="end_joint" type="fixed">                              <!-- 定义关节：end_joint，固定连接 -->
+    <origin xyz="0 0 0.15539" rpy="0 -1.5708 3.1415" />              <!-- 相对父 link：Z 上移 15.539cm，绕 Y -90°、绕 Z 180° -->
+    <parent link="link6" />                                          <!-- 父连杆：link6 -->
+    <child link="end_link" />                                        <!-- 子连杆：end_link -->
+    <axis xyz="0 0 0" />                                             <!-- 固定关节无轴，填 0 -->
+  </joint>                                                           <!-- 关节 end_joint 定义结束 -->
+
+
+  <link name="finger_left_link">                                     <!-- 定义连杆：左手指 -->
+    <visual name="finger_left_body">                                 <!-- 可视化元素：手指本体 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/visual/colored_left_finger_finger_black.stl" /> <!-- 加载左手指黑色 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="gripper_finger_black" />                       <!-- 使用 gripper_finger_black 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <visual name="finger_left_carriage">                             <!-- 可视化元素：滑架 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/shared/colored_left_finger_carriage_grey.stl" /> <!-- 加载滑架灰色 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="gripper_carriage_grey" />                      <!-- 使用 gripper_carriage_grey 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <visual name="finger_left_travel_stop">                          <!-- 可视化元素：行程限位 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/shared/colored_left_finger_travel_stop_yellow.stl" /> <!-- 加载限位黄色 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="gripper_seeed_yellow" />                       <!-- 使用 gripper_seeed_yellow 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <visual name="finger_left_crossed_rack">                         <!-- 可视化元素：交叉齿条 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/visual/colored_left_finger_rack_metal.stl" /> <!-- 加载齿条金属 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="gripper_rack_metal" />                         <!-- 使用 gripper_rack_metal 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <collision>                                                      <!-- 碰撞体定义块开始 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 碰撞体相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/collision/left_finger.stl" />      <!-- 加载左手指碰撞 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+    </collision>                                                     <!-- 碰撞体定义块结束 -->
+  </link>                                                            <!-- 连杆 finger_left_link 定义结束 -->
+
+
+  <joint name="finger_left" type="prismatic">                        <!-- 定义关节：finger_left，移动关节 -->
+    <origin xyz="0 0 0" rpy="0 0 0" />                               <!-- 相对父 link 原点无变换 -->
+    <parent link="end_link" />                                       <!-- 父连杆：end_link -->
+    <child link="finger_left_link" />                                <!-- 子连杆：finger_left_link -->
+    <axis xyz="0 1 0" />                                             <!-- 移动轴：Y 轴 -->
+    <limit lower="0" upper="0.05" effort="8" velocity="0.08" />      <!-- 限位：0~0.05m，力 8N，速度 0.08m/s -->
+  </joint>                                                           <!-- 关节 finger_left 定义结束 -->
+
+
+  <link name="finger_right_link">                                    <!-- 定义连杆：右手指 -->
+    <visual name="finger_right_body">                                <!-- 可视化元素：手指本体 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/visual/colored_right_finger_finger_black.stl" /> <!-- 加载右手指黑色 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="gripper_finger_black" />                       <!-- 使用 gripper_finger_black 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <visual name="finger_right_carriage">                            <!-- 可视化元素：滑架 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/shared/colored_right_finger_carriage_grey.stl" /> <!-- 加载滑架灰色 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="gripper_carriage_grey" />                      <!-- 使用 gripper_carriage_grey 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <visual name="finger_right_travel_stop">                         <!-- 可视化元素：行程限位 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/shared/colored_right_finger_travel_stop_yellow.stl" /> <!-- 加载限位黄色 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="gripper_seeed_yellow" />                       <!-- 使用 gripper_seeed_yellow 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <visual name="finger_right_crossed_rack">                        <!-- 可视化元素：交叉齿条 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/visual/colored_right_finger_rack_metal.stl" /> <!-- 加载齿条金属 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+      <material name="gripper_rack_metal" />                         <!-- 使用 gripper_rack_metal 材质 -->
+    </visual>                                                        <!-- 可视化元素结束 -->
+    <collision>                                                      <!-- 碰撞体定义块开始 -->
+      <origin xyz="0 0 0" rpy="0 0 0" />                             <!-- 碰撞体相对 link 原点无变换 -->
+      <geometry>                                                     <!-- 几何形状块开始 -->
+        <mesh filename="package://dm_armx_description/meshes/collision/right_finger.stl" />     <!-- 加载右手指碰撞 STL 网格 -->
+      </geometry>                                                    <!-- 几何形状块结束 -->
+    </collision>                                                     <!-- 碰撞体定义块结束 -->
+  </link>                                                            <!-- 连杆 finger_right_link 定义结束 -->
+
+
+  <joint name="finger_right" type="prismatic">                       <!-- 定义关节：finger_right，移动关节（从动） -->
+    <origin xyz="0 0 0" rpy="0 0 0" />                               <!-- 相对父 link 原点无变换 -->
+    <parent link="end_link" />                                       <!-- 父连杆：end_link -->
+    <child link="finger_right_link" />                               <!-- 子连杆：finger_right_link -->
+    <axis xyz="0 1 0" />                                             <!-- 移动轴：Y 轴 -->
+    <limit lower="-0.05" upper="0" effort="8" velocity="0.08" />     <!-- 限位：-0.05~0m，力 8N，速度 0.08m/s -->
+    <mimic joint="finger_left" multiplier="-1" offset="0" />         <!-- 从动于 finger_left，乘数 -1 实现反向对称运动 -->
+  </joint>                                                           <!-- 关节 finger_right 定义结束 -->
+
+  
+</robot>                                                             <!-- 机器人根节点结束 -->
