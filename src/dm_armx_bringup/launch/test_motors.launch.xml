@@ -1,0 +1,26 @@
+<launch>
+  <!-- 第一步真机测试：只起 robot_state_publisher + ros2_control + 位置直通控制器。
+       先别起 move_group / moveit，减少变量。 -->
+  <let name="urdf_path"
+       value="$(find-pkg-share dm_arm_config)/config/DM_Armx.urdf.xacro" />
+
+  <node pkg="robot_state_publisher" exec="robot_state_publisher" output="screen">
+    <param name="robot_description"
+           value="$(command 'xacro $(var urdf_path)')"
+           type="str"/>
+  </node>
+
+  <node pkg="controller_manager" exec="ros2_control_node" output="screen">
+    <param from="$(find-pkg-share dm_armx_bringup)/config/test_motors_controllers.yaml" />
+  </node>
+
+  <node pkg="controller_manager" exec="spawner" args="joint_state_broadcaster" output="screen" />
+  <node pkg="controller_manager" exec="spawner"
+        args="forward_position_controller --param-file $(find-pkg-share dm_armx_bringup)/config/test_motors_controllers.yaml"
+        output="screen" />
+
+  <!-- 可视化：RobotModel 直接吃 /robot_description + /tf，不依赖 move_group。
+       （moveit.rviz 里只有 MotionPlanning 显示器，没有 move_group 时什么都看不到） -->
+  <node pkg="rviz2" exec="rviz2" output="screen"
+        args="-d $(find-pkg-share dm_armx_bringup)/config/test_motors.rviz" />
+</launch>

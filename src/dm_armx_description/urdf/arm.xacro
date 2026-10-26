@@ -129,7 +129,7 @@
     <parent link="link1" />                                          <!-- 父连杆：link1 -->
     <child link="link2" />                                           <!-- 子连杆：link2 -->
     <axis xyz="0 0 -1" />                                            <!-- 旋转轴：负 Z 轴（经父坐标系旋转后对应世界 Y） -->
-    <limit lower="-3.14" upper="0" effort="27" velocity="50" />      <!-- 限位：-π~0，力矩 27N·m，速度 50rad/s -->
+    <limit lower="-3.14" upper="0.02" effort="27" velocity="50" />    <!-- 限位：-π~0，上限留 0.02rad 余量吸收零位噪声 -->
   </joint>                                                           <!-- 关节 joint2 定义结束 -->
 
 
@@ -181,7 +181,7 @@
     <parent link="link2" />                                          <!-- 父连杆：link2 -->
     <child link="link3" />                                           <!-- 子连杆：link3 -->
     <axis xyz="0 0 1" />                                             <!-- 旋转轴：Z 轴 -->
-    <limit lower="-3.14" upper="0" effort="27" velocity="50" />      <!-- 限位：-π~0，力矩 27N·m，速度 50rad/s -->
+    <limit lower="-3.14" upper="0.02" effort="27" velocity="50" />    <!-- 限位：-π~0，上限留 0.02rad 余量吸收零位噪声 -->
   </joint>                                                           <!-- 关节 joint3 定义结束 -->
 
 

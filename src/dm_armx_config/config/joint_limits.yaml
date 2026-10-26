@@ -1,0 +1,50 @@
+# joint_limits.yaml 覆盖 URDF 里的动力学参数，MoveIt 规划时以这里为准。
+#
+# ⚠️ 真机必须用真实速度：URDF 里写的是电机额定值（50 / 200 rad/s），
+#    照那个规划出来的轨迹，真机根本跟不上，JTC 会因超时/误差中止。
+#    这里统一限制到 0.5 rad/s，与 dm_armx_hardware 的 velocity_limit=0.5 一致。
+#    想快一点：改大 max_velocity 和硬件 velocity_limit（两者要一起改）。
+# default_*_scaling_factor 会再乘一次：0.1 × 0.5 = 0.05 rad/s，第一次测试够慢。
+
+default_velocity_scaling_factor: 0.1
+default_acceleration_scaling_factor: 0.1
+
+joint_limits:
+  joint1:
+    has_velocity_limits: true
+    max_velocity: 0.5
+    has_acceleration_limits: true
+    max_acceleration: 1.0
+  joint2:
+    has_velocity_limits: true
+    max_velocity: 0.5
+    has_acceleration_limits: true
+    max_acceleration: 1.0
+  joint3:
+    has_velocity_limits: true
+    max_velocity: 0.5
+    has_acceleration_limits: true
+    max_acceleration: 1.0
+  joint4:
+    has_velocity_limits: true
+    max_velocity: 0.5
+    has_acceleration_limits: true
+    max_acceleration: 1.0
+  joint5:
+    has_velocity_limits: true
+    max_velocity: 0.5
+    has_acceleration_limits: true
+    max_acceleration: 1.0
+  joint6:
+    has_velocity_limits: true
+    max_velocity: 0.5
+    has_acceleration_limits: true
+    max_acceleration: 1.0
+  finger_left:
+    has_position_limits: true
+    min_position: 0.0
+    max_position: 0.05
+    has_velocity_limits: true
+    max_velocity: 0.08
+    has_acceleration_limits: true
+    max_acceleration: 0.5

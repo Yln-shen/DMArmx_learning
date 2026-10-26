@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <xacro:macro name="DM_Armx_ros2_control" params="name">
+
+        <!-- 真机硬件插件：dm_armx_hardware/DmArmxHardwareInterface
+             注意：这里只声明"插件真正会导出"的接口。
+             - 命令：只有 position（POS_VEL 模式）
+             - 状态：position + velocity
+             多声明用不到的接口（velocity/effort 命令）会让控制器以为能下发，实际没人发。 -->
+        <ros2_control name="${name}" type="system">
+            <hardware>
+                <plugin>dm_armx_hardware/DmArmxHardwareInterface</plugin>
+                <param name="serial_port">/dev/ttyACM0</param>
+                <param name="baud_rate">921600</param>
+                <!-- 第一版统一限速，先用 0.5 rad/s 保守值 -->
+                <param name="velocity_limit">0.5</param>
+                <!-- 标定零位时改成 false：电机不使能、不下发，只读位置，方便用手摆臂
+                <param name="enable_on_activate">true</param> -->
+            </hardware>
+
+            <!-- ===== joint1~3：达妙 DM4340P（PMAX 12.5 / VMAX 30 / TMAX 10）===== -->
+            <joint name="joint1">
+                <command_interface name="position"/>
+                <state_interface name="position"/>
+                <state_interface name="velocity"/>
+                <param name="motor_id">1</param>
+                <param name="direction">1</param>
+                <param name="offset">1.368925</param>
+                <param name="p_max">12.5</param>
+                <param name="v_max">10.0</param>
+                <param name="t_max">28.0</param>
+            </joint>
+
+            <joint name="joint2">
+                <command_interface name="position"/>
+                <state_interface name="position"/>
+                <state_interface name="velocity"/>
+                <param name="motor_id">2</param>
+                <param name="direction">1</param>
+                <param name="offset">1.802663</param>
+                <param name="p_max">12.5</param>
+                <param name="v_max">10.0</param>
+                <param name="t_max">28.0</param>
+            </joint>
+
+            <joint name="joint3">
+                <command_interface name="position"/>
+                <state_interface name="position"/>
+                <state_interface name="velocity"/>
+                <param name="motor_id">3</param>
+                <param name="direction">1</param>
+                <param name="offset">-0.296979</param>
+                <param name="p_max">12.5</param>
+                <param name="v_max">30.0</param>
+                <param name="t_max">10.0</param>
+            </joint>
+
+            <!-- ===== joint4~6：达妙 DM4310（PMAX 12.5 / VMAX 10 / TMAX 28）===== -->
+            <joint name="joint4">
+                <command_interface name="position"/>
+                <state_interface name="position"/>
+                <state_interface name="velocity"/>
+                <param name="motor_id">4</param>
+                <param name="direction">1</param>
+                <param name="offset">1.859121</param>
+                <param name="p_max">12.5</param>
+                <param name="v_max">30.0</param>
+                <param name="t_max">10.0</param>
+            </joint>
+
+            <joint name="joint5">
+                <command_interface name="position"/>
+                <state_interface name="position"/>
+                <state_interface name="velocity"/>
+                <param name="motor_id">5</param>
+                <param name="direction">1</param>
+                <param name="offset">1.300259</param>
+                <param name="p_max">12.5</param>
+                <param name="v_max">30.0</param>
+                <param name="t_max">10.0</param>
+            </joint>
+
+            <joint name="joint6">
+                <command_interface name="position"/>
+                <state_interface name="position"/>
+                <state_interface name="velocity"/>
+                <param name="motor_id">6</param>
+                <param name="direction">1</param>
+                <param name="offset">0.059319</param>
+                <param name="p_max">12.5</param>
+                <param name="v_max">30.0</param>
+                <param name="t_max">10.0</param>
+            </joint>
+        </ros2_control>
+    </xacro:macro>
+</robot>

@@ -1,0 +1,10 @@
+<library path="dm_armx_hardware">
+  <class
+    name="dm_armx_hardware/DmArmxHardwareInterface"
+    type="dm_armx_hardware::DmArmxHardwareInterface"
+    base_class_type="hardware_interface::SystemInterface">
+    <description>
+      DM Armx 6 轴机械臂（达妙 4340P x3 + 4310 x3，U2CAN 串口，位置速度模式）
+    </description>
+  </class>
+</library>
