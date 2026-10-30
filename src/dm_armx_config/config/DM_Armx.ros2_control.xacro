@@ -18,7 +18,7 @@
                 <param name="enable_on_activate">true</param> -->
             </hardware>
 
-            <!-- ===== joint1~3：达妙 DM4340P（PMAX 12.5 / VMAX 30 / TMAX 10）===== -->
+            <!-- ===== joint1~3：达妙 DM4340P（实测 12.5 / 10.0 / 28.0）===== -->
             <joint name="joint1">
                 <command_interface name="position"/>
                 <state_interface name="position"/>
@@ -51,11 +51,11 @@
                 <param name="direction">1</param>
                 <param name="offset">-0.296979</param>
                 <param name="p_max">12.5</param>
-                <param name="v_max">30.0</param>
-                <param name="t_max">10.0</param>
+                <param name="v_max">10.0</param>
+                <param name="t_max">28.0</param>
             </joint>
 
-            <!-- ===== joint4~6：达妙 DM4310（PMAX 12.5 / VMAX 10 / TMAX 28）===== -->
+            <!-- ===== joint4~6：达妙 DM4310（实测 12.5 / 30.0 / 10.0）===== -->
             <joint name="joint4">
                 <command_interface name="position"/>
                 <state_interface name="position"/>
@@ -86,7 +86,7 @@
                 <state_interface name="velocity"/>
                 <param name="motor_id">6</param>
                 <param name="direction">1</param>
-                <param name="offset">0.059319</param>
+                <param name="offset">-0.264744</param>
                 <param name="p_max">12.5</param>
                 <param name="v_max">30.0</param>
                 <param name="t_max">10.0</param>

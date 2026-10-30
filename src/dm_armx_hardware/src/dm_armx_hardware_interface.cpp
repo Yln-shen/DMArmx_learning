@@ -147,6 +147,15 @@ DmArmxHardwareInterface::CallbackReturn DmArmxHardwareInterface::on_configure(
   }
 
   RCLCPP_INFO(get_logger(), "串口已打开，%zu 台电机都有反馈", joints_.size());
+
+  // 总线上还有别的电机在回帧（比如刚接上来的夹爪）：
+  // 打印它们的反馈 ID，方便确认 ID 有没有和手臂的 1..6 / 0x11..0x16 撞车。
+  for (uint8_t unknown_id : bus_->unknown_ids()) {
+    RCLCPP_WARN(
+      get_logger(),
+      "总线上还有未注册的电机反馈 ID 0x%02X（夹爪？确认它的 ESC_ID/MST_ID 与手臂不冲突）",
+      unknown_id);
+  }
   return CallbackReturn::SUCCESS;
 }
 
