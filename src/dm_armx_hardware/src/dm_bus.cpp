@@ -93,6 +93,11 @@ void MotorBus::send_pos_vel(uint8_t motor_id, double p_des, double v_des)
   send_frame(pos_vel_frame(motor_id, p_des, v_des));
 }
 
+void MotorBus::send_force_pos(uint8_t motor_id, double p_des, double v_des, double i_des)
+{
+  send_frame(force_pos_frame(motor_id, p_des, v_des, i_des));
+}
+
 void MotorBus::send_mit(uint8_t motor_id, double p_des, double v_des, double kp, double kd,
   double t_ff)
 {

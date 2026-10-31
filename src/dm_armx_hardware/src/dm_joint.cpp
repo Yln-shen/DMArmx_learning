@@ -1,7 +1,8 @@
-// dm_joint.cpp —— 单关节实现（**只走 POS_VEL**；语义照 Python 的 joint.py）。
-// MIT 已从 C++ 这一层砍掉（2026-10-14）：本链只走位置速度，固件位置环自带积分。
+// dm_joint.cpp —— 单关节实现（六轴 POS_VEL，夹爪力位混控；语义照 Python 的 joint.py）。
+// MIT 已从 C++ 这一层砍掉（2026-10-14）：本链只走位置类模式，固件位置环自带积分。
 #include "dm_armx_hardware/dm_joint.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <stdexcept>
 #include <utility>
@@ -36,6 +37,23 @@ Joint::Joint(MotorBus & bus, const JointConfig & cfg)
     throw std::invalid_argument(
       "关节 " + cfg_.name + "：direction 只能是 ±1，收到 " + std::to_string(cfg_.direction));
   }
+  if (cfg_.mode != ControlMode::kPosVel && cfg_.mode != ControlMode::kForcePos) {
+    throw std::invalid_argument("关节 " + cfg_.name + "：mode 只能是 2(位置速度) / 4(力位混控)");
+  }
+  if (!(cfg_.scale > 0.0)) {
+    throw std::invalid_argument("关节 " + cfg_.name + "：scale 必须 > 0（电机侧单位 / 关节侧单位）");
+  }
+  if (cfg_.velocity_limit < 0.0) {
+    throw std::invalid_argument("关节 " + cfg_.name + "：velocity_limit 不能是负的");
+  }
+  if (cfg_.mode == ControlMode::kForcePos &&
+    (!(cfg_.grip_force_default > 0.0) || !(cfg_.grip_force_max > 0.0) ||
+    cfg_.grip_force_max < cfg_.grip_force_default || !(cfg_.current_per_force > 0.0)))
+  {
+    throw std::invalid_argument(
+      "关节 " + cfg_.name +
+      "：力位混控需要 grip_force_default/max 和 current_per_force（都 > 0，且 max ≥ default）");
+  }
   if (!(cfg_.limit.p_max > 0.0) || !(cfg_.limit.v_max > 0.0) || !(cfg_.limit.t_max > 0.0)) {
     throw std::invalid_argument(
       "关节 " + cfg_.name + "：档位 PMAX/VMAX/TMAX 必须都是正数（它们来自寄存器回读）");
@@ -61,12 +79,12 @@ Joint::Joint(MotorBus & bus, const JointConfig & cfg)
 // ── 换算与钳位 ──
 double Joint::joint_to_motor(double joint_value) const
 {
-  return static_cast<double>(cfg_.direction) * joint_value + cfg_.offset;
+  return cfg_.offset + static_cast<double>(cfg_.direction) * cfg_.scale * joint_value;
 }
 
 double Joint::motor_to_joint(double motor_value) const
 {
-  return static_cast<double>(cfg_.direction) * (motor_value - cfg_.offset);
+  return static_cast<double>(cfg_.direction) * (motor_value - cfg_.offset) / cfg_.scale;
 }
 
 double Joint::clamp(double joint_value) const
@@ -105,6 +123,25 @@ void Joint::set_pos_vel(double joint_pos, double vlim)
   bus_.send_pos_vel(cfg_.motor_id, prepare_frame(joint_pos), vlim);
 }
 
+void Joint::set_force_pos(double joint_pos, double vlim, double force)
+{
+  if (!std::isfinite(joint_pos) || !std::isfinite(vlim)) {
+    throw std::invalid_argument(
+      "关节 " + cfg_.name + "：非有限数（pos / vlim 是 NaN/inf）");
+  }
+  if (vlim < 0.0) {
+    throw std::invalid_argument(
+      "关节 " + cfg_.name + "：vlim 是负的；协议里是无符号，负值会被钳成 0");
+  }
+  // effort ≤ 0 或 NaN 视为"没设置"：用默认夹紧力，避免力控制器激活时写 0 导致夹爪松掉
+  const double force_limited =
+    (std::isfinite(force) && force > 0.0) ? std::min(force, cfg_.grip_force_max)
+                                          : cfg_.grip_force_default;
+  bus_.send_force_pos(
+    cfg_.motor_id, prepare_frame(joint_pos), cfg_.scale * vlim,
+    force_limited * cfg_.current_per_force);
+}
+
 void Joint::enable()
 {
   const auto st = bus_.get_state(cfg_.motor_id);
@@ -116,7 +153,14 @@ void Joint::enable()
   try {
     bus_.send_enable(cfg_.motor_id);
     // 保持帧用**电机侧实测值**，不经过 clamp/换算：钳了就不是"保持"（陷阱 #21）
-    bus_.send_pos_vel(cfg_.motor_id, st->pos, kHoldVlim);
+    if (cfg_.mode == ControlMode::kForcePos) {
+      // 力位混控必须发 0x300 帧；发 pos_vel 帧电机不认，等于使能后没有指令
+      bus_.send_force_pos(
+        cfg_.motor_id, st->pos, kHoldVlim,
+        cfg_.grip_force_default * cfg_.current_per_force);
+    } else {
+      bus_.send_pos_vel(cfg_.motor_id, st->pos, kHoldVlim);
+    }
   } catch (...) {
     try {
       bus_.send_disable(cfg_.motor_id);
@@ -151,8 +195,8 @@ JointState Joint::get_state() const
   out.motor_id = cfg_.motor_id;
   out.err = st->err;
   out.position = motor_to_joint(st->pos);
-  out.velocity = static_cast<double>(cfg_.direction) * st->vel;   // 矢量：只乘 direction
-  out.torque = static_cast<double>(cfg_.direction) * st->tau;     // 同上，不加 offset
+  out.velocity = static_cast<double>(cfg_.direction) * st->vel / cfg_.scale;   // 矢量：只乘 direction
+  out.torque = static_cast<double>(cfg_.direction) * st->tau * cfg_.scale;     // 棱柱关节 = N
   out.t_mos_raw = st->t_mos_raw;
   out.t_rotor_raw = st->t_rotor_raw;
   out.enabled = (st->err == 0x1);

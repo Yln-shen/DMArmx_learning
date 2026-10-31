@@ -3,8 +3,8 @@
 // 边界：
 //   - 不拥有控制循环（`set_*` 只发一帧）、不 poll、不写寄存器；
 //   - 不知道 ROS、不读 yaml —— 参数由调用方（插件）填进 `JointConfig`；
-//   - **只做 mode 2(位置速度)**。MIT(1) 已从 C++ 这一层砍掉（2026-10-14 决定：本链只走
-//     POS_VEL，固件位置环自带积分、不需要力矩前馈；折叠位的重力由机械结构承载，已实测）。
+//   - **六轴只做 mode 2(位置速度)，夹爪做 mode 4(力位混控)**。MIT(1) 已从 C++ 这一层砍掉
+//     （2026-10-14 决定：本链只走位置类模式，固件位置环自带积分、不需要力矩前馈）。
 //     ⚠️ 协议层的 `dm_frames::mit_frame` **保留**（Python 侧 `joint.py` 仍然支持 MIT，
 //        两份协议实现要继续互相咬住），只是 C++ 的控制路径不再用它。
 //
@@ -40,13 +40,27 @@ inline double ours_to_model(double q_ours, int sign, double zero_shift)
   return static_cast<double>(sign) * q_ours + zero_shift;
 }
 
+// 与电机寄存器 0x0A 的取值一致：2 = 位置速度（0x100+ID），4 = 力位混控（0x300+ID）
+enum class ControlMode : uint8_t
+{
+  kPosVel = 2,
+  kForcePos = 4,
+};
+
 struct JointConfig
 {
   std::string name;
   uint8_t motor_id = 1;
   std::string motor_type;                       // "4340P" / "4310"（只用于报错信息）
-  int direction = 1;                            // ±1：电机侧 = direction × 关节侧 + offset
+  int direction = 1;                            // ±1：电机侧 = offset + direction × scale × 关节侧
   double offset = 0.0;
+  double scale = 1.0;                           // 电机侧单位 / 关节侧单位（夹爪 = rad/m）
+  ControlMode mode = ControlMode::kPosVel;      // 2=位置速度；4=力位混控（夹爪）
+  double velocity_limit = 0.5;                  // 关节侧速度上限（夹爪 = 0.08 m/s）
+  double grip_force_default = 0.0;              // N；仅 kForcePos，effort≤0 时用它
+  double grip_force_max = 0.0;                  // N；仅 kForcePos，硬上限
+  double current_per_force = 0.0;               // 电流标幺 / N；仅 kForcePos
+  bool fatal_on_error = true;                   // false = 故障只报警，不让整机 ERROR
   Limit limit{12.5, 10.0, 28.0};                // 档位（必须来自 0x15/0x16/0x17 回读）
   std::optional<double> position_min;           // 关节侧软限位（我们的标定）；空 = 不钳
   std::optional<double> position_max;
@@ -58,8 +72,8 @@ struct JointState
   uint8_t motor_id = 0;
   uint8_t err = 0;
   double position = 0.0;      // 关节侧（已换算）
-  double velocity = 0.0;      // 关节侧（只乘 direction）
-  double torque = 0.0;        // 关节侧（只乘 direction）
+  double velocity = 0.0;      // 关节侧（direction × 电机速度 / scale）
+  double torque = 0.0;        // 关节侧（= direction × tau × scale；棱柱关节是 N）
   uint8_t t_mos_raw = 0;
   uint8_t t_rotor_raw = 0;
   bool enabled = false;
@@ -81,8 +95,8 @@ public:
   uint8_t motor_id() const {return cfg_.motor_id;}
 
   // ── 换算与钳位（纯函数，和 Python 的公式逐条对应）──
-  double joint_to_motor(double joint_value) const;   // direction × v + offset
-  double motor_to_joint(double motor_value) const;   // direction × (v − offset)
+  double joint_to_motor(double joint_value) const;   // offset + direction × scale × v
+  double motor_to_joint(double motor_value) const;   // direction × (v − offset) / scale
   double clamp(double joint_value) const;            // 软限位（NaN 不在这里拦，见 prepare_frame）
   double clamp_pmax(double motor_value) const;       // 电机侧 ±PMAX
 
@@ -91,6 +105,8 @@ public:
 
   // ── 发送（每条只发一帧）──
   void set_pos_vel(double joint_pos, double vlim);
+  // 力位混控：force 是夹紧力上限（N），≤0 用 grip_force_default；vlim 用关节侧单位。
+  void set_force_pos(double joint_pos, double vlim, double force);
   void enable();     // 命令帧 + 保持帧（用电机侧实测位置，绝不朝零位冲）
   void disable();
 

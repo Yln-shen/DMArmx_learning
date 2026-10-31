@@ -4,8 +4,8 @@
 
         <!-- 真机硬件插件：dm_armx_hardware/DmArmxHardwareInterface
              注意：这里只声明"插件真正会导出"的接口。
-             - 命令：只有 position（POS_VEL 模式）
-             - 状态：position + velocity
+             - 命令：六轴 position（POS_VEL）；夹爪 position + effort（力位混控）
+             - 状态：position + velocity；夹爪多一个 effort
              多声明用不到的接口（velocity/effort 命令）会让控制器以为能下发，实际没人发。 -->
         <ros2_control name="${name}" type="system">
             <hardware>
@@ -25,7 +25,10 @@
                 <state_interface name="velocity"/>
                 <param name="motor_id">1</param>
                 <param name="direction">1</param>
-                <param name="offset">1.368925</param>
+                <!-- 2026-10-31：joint1 被误发 0xFE（"保存位置零点"）把电机零点清零，
+                     原始角 1.299496 → -0.000191。零点已写进驱动器 flash，物理姿态未变，
+                     故 offset 整体平移：1.368925 - 1.299496 + (-0.000191) = 0.069238 -->
+                <param name="offset">0.069238</param>
                 <param name="p_max">12.5</param>
                 <param name="v_max">10.0</param>
                 <param name="t_max">28.0</param>
@@ -90,6 +93,41 @@
                 <param name="p_max">12.5</param>
                 <param name="v_max">30.0</param>
                 <param name="t_max">10.0</param>
+            </joint>
+
+            <!-- ===== 夹爪：DM4310，力位混控（CTRL_MODE=4，0x300+ID）=====
+                 单指行程 0~0.05 m；实测闭合 +0.393874 rad、全开 -5.572786 rad
+                 ⇒ scale = (0.393874+5.572786)/0.05 = 119.3332 rad/m，direction = -1
+                 effort 单位是 N（夹紧力上限），不是电机力矩。 -->
+            <joint name="finger_left">
+                <command_interface name="position"/>
+                <command_interface name="effort"/>
+                <state_interface name="position"/>
+                <state_interface name="velocity"/>
+                <state_interface name="effort"/>
+                <param name="motor_id">7</param>
+                <param name="mode">4</param>
+                <param name="direction">-1</param>
+                <!-- 2026-10-31 重新实测：闭合 +6.560426，全开 +0.594911（绝对角漂了约 +6.17） -->
+                <param name="offset">6.560426</param>
+                <param name="scale">119.3103</param>
+                <param name="velocity_limit">0.08</param>
+                <param name="position_min">-0.002</param>
+                <param name="position_max">0.052</param>
+                <param name="p_max">12.5</param>
+                <param name="v_max">30.0</param>
+                <param name="t_max">10.0</param>
+                <!-- 2026-10-31 实测（直连电机 + JTC 全链路）：
+                     齿条阻力不是常数：闭合端静摩擦 ≈15 N，但越往开走越大
+                     （11mm→20.7N，24mm→30.0N，37mm→41.7N）。顶死在闭合端十几分钟后，
+                     30 N 已经拉不开（力恒定 +32 N 堵转），45 N 能顺利全行程。
+                     所以默认力必须给到 45 N 才有余量；上限受 URDF effort=50 约束。
+                     电流标幺按实测重标：i_des ≈ 0.0009 × F[N]（45N → 0.0405）。 -->
+                <param name="grip_force_default">45.0</param>
+                <param name="grip_force_max">48.0</param>
+                <param name="current_per_force">0.0009</param>
+                <!-- 夹爪故障只报警，不让整臂失能 -->
+                <param name="fatal_on_error">false</param>
             </joint>
         </ros2_control>
     </xacro:macro>

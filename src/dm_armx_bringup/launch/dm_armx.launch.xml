@@ -18,6 +18,7 @@
   <node pkg="controller_manager" exec="spawner" args="joint_state_broadcaster" />
   <node pkg="controller_manager" exec="spawner" args="arm_controller --param-file $(find-pkg-share dm_armx_bringup)/config/ros2_controllers.yaml" />
   <node pkg="controller_manager" exec="spawner" args="gripper_controller --param-file $(find-pkg-share dm_armx_bringup)/config/ros2_controllers.yaml" />
+  <node pkg="controller_manager" exec="spawner" args="gripper_force_controller --param-file $(find-pkg-share dm_armx_bringup)/config/ros2_controllers.yaml" />
 
   <include file="$(find-pkg-share dm_arm_config)/launch/static_virtual_joint_tfs.launch.py" />
   <include file="$(find-pkg-share dm_arm_config)/launch/move_group.launch.py" />

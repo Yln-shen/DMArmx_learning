@@ -9,6 +9,10 @@ controller_manager:
     gripper_controller:
       type: joint_trajectory_controller/JointTrajectoryController
 
+    # 随 launch 自动起；topic /gripper_force_controller/commands 调夹紧力
+    gripper_force_controller:
+      type: forward_command_controller/ForwardCommandController
+
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
 
@@ -33,9 +37,22 @@ gripper_controller:
       - finger_left
     command_interfaces:
       - position
-      - velocity
-      - effort
+    # JTC 只接受 position/velocity/acceleration；effort 状态由 JSB 发布，不能写在这里
     state_interfaces:
       - position
       - velocity
-      - effort
+    # 单指行程 50mm；调试期路径容差放到全行程，避免电机还没使上劲就 abort
+    constraints:
+      goal_time: 5.0
+      stopped_velocity_tolerance: 0.02
+      finger_left:
+        trajectory: 0.05
+        goal: 0.01
+
+# 运行时可调夹紧力：发 /gripper_force_controller/commands（Float64MultiArray，单位 N）。
+# 0/负数会被硬件映射成默认夹紧力（grip_force_default），不会让夹爪松掉。
+gripper_force_controller:
+  ros__parameters:
+    joints:
+      - finger_left
+    interface_name: effort
