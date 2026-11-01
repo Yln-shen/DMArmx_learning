@@ -4,9 +4,9 @@
 
         <!-- 真机硬件插件：dm_armx_hardware/DmArmxHardwareInterface
              注意：这里只声明"插件真正会导出"的接口。
-             - 命令：六轴 position（POS_VEL）；夹爪 position + effort（力位混控）
-             - 状态：position + velocity；夹爪多一个 effort
-             多声明用不到的接口（velocity/effort 命令）会让控制器以为能下发，实际没人发。 -->
+             - 命令：六轴 position + effort；夹爪 position + effort
+               effort 只在 MIT(mode=1) 下生效；位置模式仍走 0x100 位置帧。
+             - 状态：position + velocity + effort（effort 是电机反馈力矩估计） -->
         <ros2_control name="${name}" type="system">
             <hardware>
                 <plugin>dm_armx_hardware/DmArmxHardwareInterface</plugin>
@@ -21,9 +21,14 @@
             <!-- ===== joint1~3：达妙 DM4340P（实测 12.5 / 10.0 / 28.0）===== -->
             <joint name="joint1">
                 <command_interface name="position"/>
+                <command_interface name="effort"/>
                 <state_interface name="position"/>
                 <state_interface name="velocity"/>
+                <state_interface name="effort"/>
                 <param name="motor_id">1</param>
+                <param name="mode">$(arg arm_mode)</param>
+                <param name="kp">0.0</param>
+                <param name="kd">0.1</param>
                 <param name="direction">1</param>
                 <!-- 2026-10-31：joint1 被误发 0xFE（"保存位置零点"）把电机零点清零，
                      原始角 1.299496 → -0.000191。零点已写进驱动器 flash，物理姿态未变，
@@ -36,9 +41,14 @@
 
             <joint name="joint2">
                 <command_interface name="position"/>
+                <command_interface name="effort"/>
                 <state_interface name="position"/>
                 <state_interface name="velocity"/>
+                <state_interface name="effort"/>
                 <param name="motor_id">2</param>
+                <param name="mode">$(arg arm_mode)</param>
+                <param name="kp">0.0</param>
+                <param name="kd">0.1</param>
                 <param name="direction">1</param>
                 <param name="offset">1.802663</param>
                 <param name="p_max">12.5</param>
@@ -48,9 +58,14 @@
 
             <joint name="joint3">
                 <command_interface name="position"/>
+                <command_interface name="effort"/>
                 <state_interface name="position"/>
                 <state_interface name="velocity"/>
+                <state_interface name="effort"/>
                 <param name="motor_id">3</param>
+                <param name="mode">$(arg arm_mode)</param>
+                <param name="kp">0.0</param>
+                <param name="kd">0.1</param>
                 <param name="direction">1</param>
                 <param name="offset">-0.296979</param>
                 <param name="p_max">12.5</param>
@@ -61,9 +76,14 @@
             <!-- ===== joint4~6：达妙 DM4310（实测 12.5 / 30.0 / 10.0）===== -->
             <joint name="joint4">
                 <command_interface name="position"/>
+                <command_interface name="effort"/>
                 <state_interface name="position"/>
                 <state_interface name="velocity"/>
+                <state_interface name="effort"/>
                 <param name="motor_id">4</param>
+                <param name="mode">$(arg arm_mode)</param>
+                <param name="kp">0.0</param>
+                <param name="kd">0.1</param>
                 <param name="direction">1</param>
                 <param name="offset">1.859121</param>
                 <param name="p_max">12.5</param>
@@ -73,9 +93,14 @@
 
             <joint name="joint5">
                 <command_interface name="position"/>
+                <command_interface name="effort"/>
                 <state_interface name="position"/>
                 <state_interface name="velocity"/>
+                <state_interface name="effort"/>
                 <param name="motor_id">5</param>
+                <param name="mode">$(arg arm_mode)</param>
+                <param name="kp">0.0</param>
+                <param name="kd">0.1</param>
                 <param name="direction">1</param>
                 <param name="offset">1.300259</param>
                 <param name="p_max">12.5</param>
@@ -85,9 +110,14 @@
 
             <joint name="joint6">
                 <command_interface name="position"/>
+                <command_interface name="effort"/>
                 <state_interface name="position"/>
                 <state_interface name="velocity"/>
+                <state_interface name="effort"/>
                 <param name="motor_id">6</param>
+                <param name="mode">$(arg arm_mode)</param>
+                <param name="kp">0.0</param>
+                <param name="kd">0.1</param>
                 <param name="direction">1</param>
                 <param name="offset">-0.264744</param>
                 <param name="p_max">12.5</param>

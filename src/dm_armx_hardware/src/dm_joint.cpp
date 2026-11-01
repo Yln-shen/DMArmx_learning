@@ -1,5 +1,4 @@
-// dm_joint.cpp —— 单关节实现（六轴 POS_VEL，夹爪力位混控；语义照 Python 的 joint.py）。
-// MIT 已从 C++ 这一层砍掉（2026-10-14）：本链只走位置类模式，固件位置环自带积分。
+// dm_joint.cpp —— 单关节实现（六轴 MIT/POS_VEL，夹爪力位混控；语义照 Python 的 joint.py）。
 #include "dm_armx_hardware/dm_joint.hpp"
 
 #include <algorithm>
@@ -37,14 +36,20 @@ Joint::Joint(MotorBus & bus, const JointConfig & cfg)
     throw std::invalid_argument(
       "关节 " + cfg_.name + "：direction 只能是 ±1，收到 " + std::to_string(cfg_.direction));
   }
-  if (cfg_.mode != ControlMode::kPosVel && cfg_.mode != ControlMode::kForcePos) {
-    throw std::invalid_argument("关节 " + cfg_.name + "：mode 只能是 2(位置速度) / 4(力位混控)");
+  if (cfg_.mode != ControlMode::kMit && cfg_.mode != ControlMode::kPosVel &&
+    cfg_.mode != ControlMode::kForcePos)
+  {
+    throw std::invalid_argument(
+      "关节 " + cfg_.name + "：mode 只能是 1(MIT) / 2(位置速度) / 4(力位混控)");
   }
   if (!(cfg_.scale > 0.0)) {
     throw std::invalid_argument("关节 " + cfg_.name + "：scale 必须 > 0（电机侧单位 / 关节侧单位）");
   }
   if (cfg_.velocity_limit < 0.0) {
     throw std::invalid_argument("关节 " + cfg_.name + "：velocity_limit 不能是负的");
+  }
+  if (cfg_.kp < 0.0 || cfg_.kd < 0.0) {
+    throw std::invalid_argument("关节 " + cfg_.name + "：MIT 的 kp/kd 不能是负的");
   }
   if (cfg_.mode == ControlMode::kForcePos &&
     (!(cfg_.grip_force_default > 0.0) || !(cfg_.grip_force_max > 0.0) ||
@@ -109,8 +114,8 @@ double Joint::prepare_frame(double joint_pos) const
   return clamp_pmax(joint_to_motor(clamp(joint_pos)));
 }
 
-// ── 发送 ──
-void Joint::set_pos_vel(double joint_pos, double vlim)
+// ── 发送前检查 ──
+double Joint::prepare_command(double joint_pos, double vlim) const
 {
   if (!std::isfinite(joint_pos) || !std::isfinite(vlim)) {
     throw std::invalid_argument(
@@ -120,26 +125,37 @@ void Joint::set_pos_vel(double joint_pos, double vlim)
     throw std::invalid_argument(
       "关节 " + cfg_.name + "：vlim 是负的；协议里是无符号，负值会被钳成 0");
   }
-  bus_.send_pos_vel(cfg_.motor_id, prepare_frame(joint_pos), vlim);
+  return prepare_frame(joint_pos);
+}
+
+// ── 发送 ──
+void Joint::set_pos_vel(double joint_pos, double vlim)
+{
+  bus_.send_pos_vel(cfg_.motor_id, prepare_command(joint_pos, vlim), vlim);
 }
 
 void Joint::set_force_pos(double joint_pos, double vlim, double force)
 {
-  if (!std::isfinite(joint_pos) || !std::isfinite(vlim)) {
-    throw std::invalid_argument(
-      "关节 " + cfg_.name + "：非有限数（pos / vlim 是 NaN/inf）");
-  }
-  if (vlim < 0.0) {
-    throw std::invalid_argument(
-      "关节 " + cfg_.name + "：vlim 是负的；协议里是无符号，负值会被钳成 0");
-  }
   // effort ≤ 0 或 NaN 视为"没设置"：用默认夹紧力，避免力控制器激活时写 0 导致夹爪松掉
   const double force_limited =
     (std::isfinite(force) && force > 0.0) ? std::min(force, cfg_.grip_force_max)
                                           : cfg_.grip_force_default;
   bus_.send_force_pos(
-    cfg_.motor_id, prepare_frame(joint_pos), cfg_.scale * vlim,
+    cfg_.motor_id, prepare_command(joint_pos, vlim), cfg_.scale * vlim,
     force_limited * cfg_.current_per_force);
+}
+
+void Joint::set_mit(double joint_pos, double v_des_motor, double kp, double kd, double tau_joint)
+{
+  if (!std::isfinite(joint_pos) || !std::isfinite(v_des_motor) ||
+    !std::isfinite(kp) || !std::isfinite(kd) || !std::isfinite(tau_joint))
+  {
+    throw std::invalid_argument("关节 " + cfg_.name + "：MIT 参数含 NaN/inf，拒发");
+  }
+  const double p_motor = clamp_pmax(joint_to_motor(joint_pos));
+  const double tau_motor = static_cast<double>(cfg_.direction) * cfg_.scale * tau_joint;
+  const double tau_clamped = std::clamp(tau_motor, -cfg_.limit.t_max, cfg_.limit.t_max);
+  bus_.send_mit(cfg_.motor_id, p_motor, v_des_motor, kp, kd, tau_clamped);
 }
 
 void Joint::enable()
@@ -158,6 +174,9 @@ void Joint::enable()
       bus_.send_force_pos(
         cfg_.motor_id, st->pos, kHoldVlim,
         cfg_.grip_force_default * cfg_.current_per_force);
+    } else if (cfg_.mode == ControlMode::kMit) {
+      // MIT 使能瞬间给 0 力矩（kp/kd/t_ff 全 0）；手臂必须有支撑，controller 随后接管。
+      bus_.send_mit(cfg_.motor_id, st->pos, 0.0, 0.0, 0.0, 0.0);
     } else {
       bus_.send_pos_vel(cfg_.motor_id, st->pos, kHoldVlim);
     }

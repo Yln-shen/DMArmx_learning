@@ -1,6 +1,9 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="DM_Armx">
     <xacro:arg name="initial_positions_file" default="initial_positions.yaml" />
+    <!-- 六轴控制模式：2 = 位置速度（默认）；1 = MIT（力矩接口最小验证用）。
+         切换 = 改这个参数 + 重启；插件启动时会按它写 CTRL_MODE(0x0A)。 -->
+    <xacro:arg name="arm_mode" default="2" />
 
     <!-- Import DM_Armx urdf file -->
     <xacro:include filename="$(find dm_armx_description)/urdf/arm.urdf" />

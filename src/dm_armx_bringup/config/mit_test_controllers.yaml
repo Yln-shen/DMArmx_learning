@@ -1,0 +1,22 @@
+# MIT 力矩接口最小验证：只起 JSB + ForwardCommandController(effort)。
+# 硬件在 mode=1（MIT）；六轴 effort 命令直接变成 MIT 帧的 t_ff。
+controller_manager:
+  ros__parameters:
+    update_rate: 100
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    forward_effort_controller:
+      type: forward_command_controller/ForwardCommandController
+
+forward_effort_controller:
+  ros__parameters:
+    joints:
+      - joint1
+      - joint2
+      - joint3
+      - joint4
+      - joint5
+      - joint6
+    interface_name: effort

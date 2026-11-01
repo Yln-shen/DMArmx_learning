@@ -3,10 +3,8 @@
 // 边界：
 //   - 不拥有控制循环（`set_*` 只发一帧）、不 poll、不写寄存器；
 //   - 不知道 ROS、不读 yaml —— 参数由调用方（插件）填进 `JointConfig`；
-//   - **六轴只做 mode 2(位置速度)，夹爪做 mode 4(力位混控)**。MIT(1) 已从 C++ 这一层砍掉
-//     （2026-10-14 决定：本链只走位置类模式，固件位置环自带积分、不需要力矩前馈）。
-//     ⚠️ 协议层的 `dm_frames::mit_frame` **保留**（Python 侧 `joint.py` 仍然支持 MIT，
-//        两份协议实现要继续互相咬住），只是 C++ 的控制路径不再用它。
+//   - 六轴支持 mode 1(MIT) / 2(位置速度)，夹爪 mode 4(力位混控)。
+//     MIT 现在只用于力矩接口最小验证（kp=0、kd 小阻尼）；位置链仍走 mode 2。
 //
 // 三条真机教训内建在这里：
 //   - 位置类模式下**没有实测位置就拒绝使能**（切模式时电机内部指令被清零，使能会朝零位冲）；
@@ -40,9 +38,11 @@ inline double ours_to_model(double q_ours, int sign, double zero_shift)
   return static_cast<double>(sign) * q_ours + zero_shift;
 }
 
-// 与电机寄存器 0x0A 的取值一致：2 = 位置速度（0x100+ID），4 = 力位混控（0x300+ID）
+// 与电机寄存器 0x0A 的取值一致：1 = MIT（ID 本身作 CAN ID），2 = 位置速度（0x100+ID），
+// 4 = 力位混控（0x300+ID）。
 enum class ControlMode : uint8_t
 {
+  kMit = 1,
   kPosVel = 2,
   kForcePos = 4,
 };
@@ -55,7 +55,9 @@ struct JointConfig
   int direction = 1;                            // ±1：电机侧 = offset + direction × scale × 关节侧
   double offset = 0.0;
   double scale = 1.0;                           // 电机侧单位 / 关节侧单位（夹爪 = rad/m）
-  ControlMode mode = ControlMode::kPosVel;      // 2=位置速度；4=力位混控（夹爪）
+  ControlMode mode = ControlMode::kPosVel;      // 1=MIT；2=位置速度；4=力位混控（夹爪）
+  double kp = 0.0;                              // MIT：位置刚度（本轮验证取 0）
+  double kd = 0.0;                              // MIT：速度阻尼
   double velocity_limit = 0.5;                  // 关节侧速度上限（夹爪 = 0.08 m/s）
   double grip_force_default = 0.0;              // N；仅 kForcePos，effort≤0 时用它
   double grip_force_max = 0.0;                  // N；仅 kForcePos，硬上限
@@ -107,6 +109,9 @@ public:
   void set_pos_vel(double joint_pos, double vlim);
   // 力位混控：force 是夹紧力上限（N），≤0 用 grip_force_default；vlim 用关节侧单位。
   void set_force_pos(double joint_pos, double vlim, double force);
+  // MIT：p_des 用关节侧位置（kp=0 时给实测值即可），v_des 用电机侧速度（本轮 0），
+  // tau 用关节侧力矩（N·m）。内部换算/钳位后发 MIT 帧（CAN ID = 电机 ID）。
+  void set_mit(double joint_pos, double v_des_motor, double kp, double kd, double tau_joint);
   void enable();     // 命令帧 + 保持帧（用电机侧实测位置，绝不朝零位冲）
   void disable();
 
@@ -116,6 +121,9 @@ public:
   void assert_healthy() const;       // 只查 ERR；故障 ⇒ 先失能再抛
 
 private:
+  // 两个 set_* 共用的前置检查（NaN/inf、负 vlim），返回**电机侧**位置。
+  double prepare_command(double joint_pos, double vlim) const;
+
   MotorBus & bus_;
   JointConfig cfg_;
 };

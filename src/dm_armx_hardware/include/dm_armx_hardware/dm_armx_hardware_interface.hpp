@@ -44,14 +44,18 @@ public:
     const rclcpp::Time & time, const rclcpp::Duration & period) override;
 
 private:
+  // 按 xacro 的 mode 写 CTRL_MODE(0x0A)；写参数会复位驱动，所以先失能、写完回读。
+  bool apply_control_modes();
+
+  // CTRL_MODE(0x0A) 校验：模式对不上就拒绝启动（位置帧会被电机静默忽略）
+  bool check_control_modes();
+
   // 声明顺序 = 构造顺序：serial_ 必须先于 bus_ 存在（MotorBus 持有 SerialIo &）
   std::unique_ptr<SerialPort> serial_;
   std::unique_ptr<MotorBus> bus_;
   std::vector<std::unique_ptr<Joint>> joints_;
 
   double velocity_limit_ = 0.5;   // 默认限速（关节可用 velocity_limit 参数覆盖）
-  // // false = 标定模式：只读反馈、不使能、不下发，方便用手把真机摆到 URDF 零位
-  // bool enable_on_activate_ = true;
 };
 
 }  // namespace dm_armx_hardware

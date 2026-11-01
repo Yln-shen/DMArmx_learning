@@ -1,0 +1,20 @@
+<launch>
+  <!-- MIT 力矩接口最小验证：RSP + ros2_control + JSB + 六轴 effort 控制器。
+       不带 MoveIt / JTC；xacro 用 arm_mode:=1，插件启动时把 0x0A 写成 1。
+       ⚠️ 写 0x0A 会失能并复位驱动，启动前手臂必须已放稳/有人扶。 -->
+  <let name="urdf_path" value="$(find-pkg-share dm_arm_config)/config/DM_Armx.urdf.xacro"/>
+
+  <node pkg="robot_state_publisher" exec="robot_state_publisher" output="screen">
+    <param name="robot_description"
+           value="$(command 'xacro $(var urdf_path) arm_mode:=1')"
+           type="str"/>
+  </node>
+
+  <node pkg="controller_manager" exec="ros2_control_node">
+    <param from="$(find-pkg-share dm_armx_bringup)/config/mit_test_controllers.yaml"/>
+  </node>
+
+  <node pkg="controller_manager" exec="spawner" args="joint_state_broadcaster"/>
+  <node pkg="controller_manager" exec="spawner"
+        args="forward_effort_controller --param-file $(find-pkg-share dm_armx_bringup)/config/mit_test_controllers.yaml"/>
+</launch>

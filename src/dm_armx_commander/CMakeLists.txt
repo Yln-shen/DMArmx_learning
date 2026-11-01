@@ -36,11 +36,6 @@ target_link_libraries(commander_template PUBLIC
 )
 
 install(
-  TARGETS moveit
-  DESTINATION lib/${PROJECT_NAME}
-)
-
-install(
   TARGETS
     moveit
     commander_template
