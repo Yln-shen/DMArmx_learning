@@ -112,6 +112,8 @@ dm_armx_hardware_interface  ros2_control 生命周期 + read()/write()
 - [x] 夹爪 URDF（`finger_left` + mimic `finger_right`）、SRDF `gripper` group、`gripper_open/closed` named state、`end_effector`、MoveIt `gripper_controller` 配置。
 - [x] 总线未知 ID 警告（已提交 `9445306`）。
 - [x] **夹爪驱动接入（2026-10-30，未提交）**：`MotorBus::send_force_pos`、`Joint` 的 mode/scale/力参数、`finger_left` xacro、effort 接口 + `gripper_force_controller` 配置。编译 + xacro 展开已通过，**待真机验证**。
+- [x] **重力补偿模型辨识 + 拖动示教（2026-11-01~05）**：模型 RMS **2.795 → 0.572 N·m**（留出集验证过），
+  真机 kp 法复验 5 点；示教配置定为 `kp=0 / kd=2.5 / 纯重力前馈`。详见 §11。
 - [x] **夹爪 JTC 开合全链路（2026-10-31 已真机验证）**：`/gripper_controller/follow_joint_trajectory` 发 `0.0` / `0.05`，两次都 `SUCCEEDED`，实测行程 42.9 / 43.8 mm；此前「发了不动」的两个原因见 5.5。
 
 ---
@@ -228,6 +230,15 @@ ros2 topic pub --once /gripper_force_controller/commands \
 18. **`0xFE` 是「保存位置零点」，不是「清除错误」**：说明书里这两节都印成了 `0xFE`（复制错误），误发会让当前角立刻变成 0、标定 offset 全废。2026-10-31 就对 joint1 干过一次（1.368925 → 0.069238，靠平移 offset 救回来）。不确定的命令字不要试。
 19. **ERR=0xD(13) 通讯丢失是锁存故障，只能断电清**：4340P 的 `TIMEOUT(0x09)=10000 ms`、4310 夹爪为 0。使能状态下只要断命令 10 秒就锁存，之后必能失败、所有 controller 起不来。`0xFE` 清不掉（实测）。配套第 17 条：别强杀、别在使能时拔 USB。
 20. **残留的 `robot_state_publisher` 会让「改了 xacro 却不生效」**：它持有旧的 `/robot_description` 继续发布，controller_manager 收到哪份先到就用哪份。2026-10-31 就是这个假象（改了 joint1 offset 却一直读到 1.369）。改完 xacro 重建后先 `ps -ef | grep [r]obot_state_publisher` 清干净再 launch。
+21. **Lyrical 的 `JointLimiter` 对「实测位置越界」是 `terminate`，不是钳位**：`joint3` 实测 +0.0336 越了 URDF 上限 0.02 ⇒ 整条 `ros2_control_node` 启动 4 s 就 Abort；`joint2` 越 0.019 ⇒ `forward_position_controller` 被停用。URDF 上限必须比真机实际可达范围**宽**（2026-11-01 踩过，连锁导致 6 台电机看门狗锁存 ERR=13）。
+22. **MIT 的 `p_des` 若取「每周期实测位置」⇒ `kp` 完全失效**：`kp·(p_des−p) ≡ 0`，调多少都是纯零刚度。必须用**位置命令**（`on_activate` 锁定的值）。2026-11-02 修。
+23. **`xacro:arg` 必须声明在顶层文件**：写在被 `include` 的文件里会报 `Undefined substitution argument`。
+24. **杀进程只杀 bash 外壳会留下孤儿 python**：表现为「两个 100 Hz 力矩发布者互相覆盖」⇒ 电机收到抖动指令，手感变成**又沉又涩又停不住**。判据用 `ros2 node list` / `ros2 topic info <topic> --verbose` 看 **Publisher count 必须是 1**，别只看 `ps`。
+25. **摩擦前馈（沿运动方向补力）会吃掉唯一的自然阻尼**：本机摩擦 0.23~0.43 N·m，抵消后臂松手会继续滑（"停不住"）；`tanh(qd/0.02)` 在 |qd|>0.05 就饱和，力是跳变的 ⇒ "涩"。示教不要开。
+27. **`gravity_feedforward_test.py --record` 原本是「纯被动模式」**：只记录、**不建 publisher、一个力矩都不发**（设计给位置模式下的辨识采集用）。想一边发力一边记录必须用**改后**的 `--record`；老语义改名 `--record-only`。2026-11-09 就是因为这条，用户以为在补重力，实际全程零补偿 ⇒ j4 自己往下掉。
+28. **同一个串口只能有一个 `ros2_control_node`**：`dm_armx.launch.xml` 还开着时再起 `test_mit.launch.xml`，后者报 `打开串口失败 /dev/ttyACM0：Device or resource busy` ⇒ 硬件 `configure` 失败、控制器加载失败，但**进程看着像起来了**。此时任何「发力矩却没反应」的结论都不成立。判据：`fuser -v /dev/ttyACM0` 看谁占着；`ros2 control list_controllers` 看你的栈里有没有那个控制器。
+：`p_des` 滞后 1.5 s + 钳 ±0.25 rad ⇒ 回拉 0.5 N·m，松手被拽回。要"黏滞感"应该加 **`kd`**，不是 `kp`。
+
 
 ---
 
@@ -270,6 +281,10 @@ ros2 topic pub --once /open_gripper example_interfaces/msg/Bool "{data: true}"
 
 ---
 
+---
+
+---
+
 ## 10. 变更记录
 
 | 日期 | 内容 |
@@ -279,3 +294,117 @@ ros2 topic pub --once /open_gripper example_interfaces/msg/Bool "{data: true}"
 | 2026-10-30 | 新增本文档；夹爪驱动接入（访谈 → 计划 → 编码）；J6 offset 重标为 -0.264744（commit 9445306） |
 | 2026-10-30 | 夹爪驱动最小实现：`send_force_pos`、mode/scale、effort 接口、随 launch 自动起的力控制器；编译通过，待真机验证 |
 | 2026-10-31 | 夹爪 JTC 开合全链路真机验证通过；力参数重标为 30/45 N、`current_per_force=0.0009`；新增 `pvt_motor_test.py`（含 `--disable`）；joint1 offset 因误发 `0xFE` 重标为 0.069238 |
+| 2026-11-01 | 修 joint3 上限越界（Lyrical JointLimiter terminate）⇒ 整链可启动；采 60 姿态辨识重力模型，RMS 2.795→0.602 |
+| 2026-11-02 | 修 MIT 的 `p_des`（`kp` 原本完全失效）；`kp`/`kd` 改成 xacro 参数；真机 kp 法复验 5 点，j3 残余 8.87→0.07 N·m |
+| 2026-11-05 | 正反两遍重采（120 姿态）⇒ RMS 0.572；摩擦实测；示教三轮对比（摩擦前馈/`kp=2` 都失败）⇒ 定稿 `kp=0 / kd=2.5` |
+
+---
+
+## 11. 重力补偿辨识与拖动示教（2026-11-01 ~ 11-05）
+
+### 11.1 一句话结论
+
+重力模型**已辨识并真机验证**（RMS 2.795 → **0.572** N·m），示教配置定为
+**`arm_kp=0 / arm_kd=2.5` + 纯重力前馈**。剩余「略沉」来自 j2 的模型误差 ~0.4 N·m + 静摩擦 0.34 N·m，
+调参解决不了，需要**运动学参数辨识**（见 11.7）。
+
+### 11.2 这轮抓到的两个真 bug（都是原本就在，不是新引入）
+
+| # | 现象 | 根因 | 修复 |
+|---|---|---|---|
+| 1 | 整条 `ros2_control_node` 启动 4 s 就 Abort，随后 6 台电机锁存 ERR=13 | `joint3` 实测 +0.0336 超过 URDF 上限 0.02，Lyrical 的 `JointLimiter` **对实测越界是 terminate** | `arm.urdf`：joint3 上限 0.02→**0.05**、joint2 0.02→**0.06** |
+| 2 | `kp` 调多少都不起作用，MIT 是纯零刚度 | `write()` 里 MIT 的 `p_des` 取**每周期实测位置** ⇒ `kp·(p_des−p) ≡ 0` | 改用**位置命令**（`on_activate` 锁定值）+ NaN 兜底 |
+
+### 11.3 改了哪些文件
+
+| 文件 | 改动 |
+|---|---|
+| `src/dm_armx_hardware/src/dm_armx_hardware_interface.cpp` | MIT 的 `p_des` 改用位置命令（bug #2 的核心修复） |
+| `src/dm_armx_description/urdf/arm.urdf` | joint2 上限 → 0.06、joint3 上限 → 0.05（bug #1） |
+| `src/dm_armx_config/config/DM_Armx.ros2_control.xacro` | `kp`/`kd` 改为引用 xacro 参数 `$(arg arm_kp)` / `$(arg arm_kd)` |
+| `src/dm_armx_config/config/DM_Armx.urdf.xacro` | 声明 `arm_kp`（默认 0.0）、`arm_kd`（默认 0.1） |
+| `src/dm_armx_bringup/launch/test_mit.launch.xml` | 新增 launch 参数 `arm_kp` / `arm_kd`，透传给 xacro |
+| `src/dm_armx_bringup/config/mit_test_controllers.yaml` | 加 `forward_position_controller`（MIT 下当位置伺服用） |
+| `src/test/collect_gravity_poses.py` | 加 `--poses <json>` 姿态表；`--hold` 默认 2→**4 s**；新增 `travel_time()` 按最大转角给时长（原来固定 3 s 会让 JTC 跟踪误差超差 abort） |
+
+### 11.4 数据与产物（都在 `log/`，已 gitignore）
+
+> 2026-11-05 清理过一轮：中间副本、旧数据集、示教原始 CSV 与运行日志已删除（48 M → 9.2 M）。
+> **只保留下面 4 个**——它们是 §11.5 全部数字的来源，删了就不可复核。
+
+| 文件 | 内容 |
+|---|---|
+| `log/gravity_poses_plan2.json` | 60 个 FK 校验过的姿态（离桌余量 ≥16 cm），正序 + 反序 = 120 |
+| `log/gravity_poses4.csv` | 120 姿态**正反两遍**的原始记录，18450 行（9.0 M） |
+| `log/gravity_fit4.json` | 拟合结果：24 个质量/质心参数（RMS 0.572 的来源） |
+| **`log/arm_gravity2.urdf`** | 把 fit4 写回惯性块的**可执行模型**，前馈就用它 |
+
+已删除（需要时可重跑 §11.8 重新生成）：`gravity_poses{,2,3,_gear}.csv`、`gravity_fit{,2,2b,3,3r,_gear,_offsets}.json`、
+`gravity_practical.json`、`synth_*.{csv,json}`、`tau_calib.csv`、`test_record.csv`、`gravity_home.json`、
+`arm_gravity.urdf`、`gravity_poses_plan.json`、`teach_trace*.csv`、`log/*.log`、`log/build_*`、`log/ros/`。
+
+`log/mit_check.urdf`（11-01 17:29）**不是本轮的**，未动。
+
+`src/test/` 也清了 3 个一次性脚本（2026-11-05）：`fit_practical_model.py`（二次模型实验，已证明过拟合，结论在 §11.5）、
+`tau_calib.py`（`effort` 尺度标定，已完成）、`park_to_home.py`（`collect_gravity_poses` 自带 park）。
+**保留**：`gravity_feedforward_test.py`（含 `build_chain`，被另外两个 import）、`fit_gravity_params.py`、
+`fit_gravity_offsets.py`、`collect_gravity_poses.py` —— 这 4 个就是 §11.8 的复现链路。
+⚠️ `fix_easy_handeye2_scripts.py` / `patch_camera_calibration.py` 属于相机标定那条线（11-04），与本轮无关，未动。
+
+### 11.5 辨识方法与关键数字
+
+- 方法：POS_VEL 托住 → 停 4 s → 读 `/joint_states` 的 `effort`（DM_Armx 同款）；重力矩对每连杆
+  `(m, m·cx, m·cy, m·cz)` 线性 ⇒ 最小二乘，24 参数、rank 满。
+- 姿态集用 FK 离线校验：**活动连杆质心离桌面 ≥ 0.30 m**（桌面约在基座系 z≈0.14，由折叠位反推），
+  姿态间插值路径最低 0.301 m。
+
+| 模型 | 总 RMS (N·m) | j2 | j3 | j4 | j5 | j6 |
+|---|---|---|---|---|---|---|
+| CAD 名义 | **2.795** | 3.39 | 4.55 | 3.79 | 0.49 | 0.25 |
+| 单遍 60 姿态 | **0.602** | 0.66 | 1.20 | 0.18 | 0.24 | 0.07 |
+| 正反两遍 120 姿态 | **0.572** | 0.69 | 1.13 | 0.21 | 0.16 | 0.08 |
+
+- **过拟合检验**：32 点拟合 / 31 点留出 ⇒ 0.769 / **0.633**，泛化成立。
+- **DM_Armx 的辨识参数不能用**：运动学逐字节相同，但把它的参数直接搬过来会拟合出 **−0.914 kg 的末端质量**；
+  穷举 9 种关节符号翻转，最好也只有 RMS 2.33 ⇒ 两台臂**动力学不一致**，必须各自辨识。
+- **摩擦实测**（正反两遍同一姿态的 `effort` 差的一半）：j1 0.23 / **j2 0.34** / **j3 0.43** / j4 0.06 / j5 0.05 / j6 0.02 N·m。
+- **j2 的误差不是可补的偏置**：残差按 q2 分段有 ±0.2~0.33 N·m 的形状偏置，但加"模型+残差多项式"
+  后留出集**几乎不变**（0.620 → 0.617），而 j3 能降（1.43 → 1.00）⇒ j2 那部分是噪声/摩擦，j3 才是模型形状误差。
+
+### 11.6 示教三轮对比（都是真机手感）
+
+| 配置 | 你的感受 | 机理 |
+|---|---|---|
+| `kp=0 / kd=1.0`，纯重力前馈 | 「j2 补偿不足」 | 模型 j2 差 ~0.4 + 摩擦 0.34 |
+| **A**：+ 摩擦前馈 `fc·tanh(qd/0.02)` | **涩、沉重、停不住** | 摩擦本是唯一的自然阻尼，抵消掉就失去制动；`tanh` 在 0.05 rad/s 就饱和 ⇒ 力跳变 |
+| **B**：`kp=2` + `p_des` 慢跟随（τ=1.5 s，钳 ±0.25 rad） | **像弹簧，松手被拉回原位** | 滞后目标产生 0.5 N·m 回拉；该用 `kd` 实现"黏滞"，不是 `kp` |
+| **最终**：`kp=0 / kd=2.5`，无摩擦前馈 | 待你确认 | 纯重力前馈 + 阻尼 |
+
+### 11.7 已知限制 / 下一步
+
+1. **j2 仍会略沉**（~0.4 N·m 模型误差 + 0.34 N·m 静摩擦）。要真正消除需要把**连杆长度/关节偏置**
+   也纳入辨识（运动学参数辨识），属于更大的工程。
+2. 模型参数**不是物理值**（`link4` 质心 1.08 m、`link6` 质量 0.18 kg）。它作为 `τ_g(q)` 的**预测器**是准的，
+   **不能**当真实质量分布用，也别拿它算动力学。
+3. 示教目前是"整臂同时使能"：折叠位附近我用 `gate`（q3 > −0.20 时淡出）避免在桌面上自顶起来。
+   这个 gate 是工程折中，不是物理量。
+4. 温度/限位/看门狗这些安全项没有新增改动。
+
+### 11.8 复现步骤
+
+```bash
+# 1) 采姿态（自己起 dm_armx.launch.xml，结束会 park 再 SIGINT）
+pixi run python src/test/collect_gravity_poses.py \
+  --poses log/gravity_poses_plan2.json --csv log/gravity_poses4.csv --hold 4
+
+# 2) 拟合
+pixi run python src/test/fit_gravity_params.py --csv log/gravity_poses4.csv --out log/gravity_fit4.json
+
+# 3) 示教（kp=0 纯重力补偿；kd=2.5 阻尼）
+ros2 launch dm_armx_bringup test_mit.launch.xml arm_kp:=0.0 arm_kd:=2.5
+#    另起一个只发 τ_ff 的节点：τ = clamp(ramp·gate·KDL_JntToGravity(arm_gravity2.urdf))
+```
+⚠️ 示教节点**只能有一个发布者**，起之前用 `ros2 topic info /forward_effort_controller/commands --verbose`
+确认 `Publisher count` 是 1（见 §7 第 24 条）。
+
+---

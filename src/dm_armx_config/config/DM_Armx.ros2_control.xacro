@@ -10,7 +10,7 @@
         <ros2_control name="${name}" type="system">
             <hardware>
                 <plugin>dm_armx_hardware/DmArmxHardwareInterface</plugin>
-                <param name="serial_port">/dev/ttyACM0</param>
+                <param name="serial_port">$(arg serial_port)</param>
                 <param name="baud_rate">921600</param>
                 <!-- 第一版统一限速，先用 0.5 rad/s 保守值 -->
                 <param name="velocity_limit">0.5</param>
@@ -27,8 +27,8 @@
                 <state_interface name="effort"/>
                 <param name="motor_id">1</param>
                 <param name="mode">$(arg arm_mode)</param>
-                <param name="kp">0.0</param>
-                <param name="kd">0.1</param>
+                <param name="kp">$(arg arm_kp)</param>
+                <param name="kd">$(arg arm_kd)</param>
                 <param name="direction">1</param>
                 <!-- 2026-10-31：joint1 被误发 0xFE（"保存位置零点"）把电机零点清零，
                      原始角 1.299496 → -0.000191。零点已写进驱动器 flash，物理姿态未变，
@@ -47,8 +47,8 @@
                 <state_interface name="effort"/>
                 <param name="motor_id">2</param>
                 <param name="mode">$(arg arm_mode)</param>
-                <param name="kp">0.0</param>
-                <param name="kd">0.1</param>
+                <param name="kp">$(arg arm_kp)</param>
+                <param name="kd">$(arg arm_kd)</param>
                 <param name="direction">1</param>
                 <param name="offset">1.802663</param>
                 <param name="p_max">12.5</param>
@@ -64,8 +64,8 @@
                 <state_interface name="effort"/>
                 <param name="motor_id">3</param>
                 <param name="mode">$(arg arm_mode)</param>
-                <param name="kp">0.0</param>
-                <param name="kd">0.1</param>
+                <param name="kp">$(arg arm_kp)</param>
+                <param name="kd">$(arg arm_kd)</param>
                 <param name="direction">1</param>
                 <param name="offset">-0.296979</param>
                 <param name="p_max">12.5</param>
@@ -82,8 +82,8 @@
                 <state_interface name="effort"/>
                 <param name="motor_id">4</param>
                 <param name="mode">$(arg arm_mode)</param>
-                <param name="kp">0.0</param>
-                <param name="kd">0.1</param>
+                <param name="kp">$(arg arm_kp)</param>
+                <param name="kd">$(arg arm_kd)</param>
                 <param name="direction">1</param>
                 <param name="offset">1.859121</param>
                 <param name="p_max">12.5</param>
@@ -99,8 +99,8 @@
                 <state_interface name="effort"/>
                 <param name="motor_id">5</param>
                 <param name="mode">$(arg arm_mode)</param>
-                <param name="kp">0.0</param>
-                <param name="kd">0.1</param>
+                <param name="kp">$(arg arm_kp)</param>
+                <param name="kd">$(arg arm_kd)</param>
                 <param name="direction">1</param>
                 <param name="offset">1.300259</param>
                 <param name="p_max">12.5</param>
@@ -116,8 +116,8 @@
                 <state_interface name="effort"/>
                 <param name="motor_id">6</param>
                 <param name="mode">$(arg arm_mode)</param>
-                <param name="kp">0.0</param>
-                <param name="kd">0.1</param>
+                <param name="kp">$(arg arm_kp)</param>
+                <param name="kd">$(arg arm_kd)</param>
                 <param name="direction">1</param>
                 <param name="offset">-0.264744</param>
                 <param name="p_max">12.5</param>
@@ -139,11 +139,16 @@
                 <param name="mode">4</param>
                 <param name="direction">-1</param>
                 <!-- 2026-10-31 重新实测：闭合 +6.560426，全开 +0.594911（绝对角漂了约 +6.17） -->
-                <param name="offset">6.560426</param>
+                <param name="offset">0.298123</param>
                 <param name="scale">119.3103</param>
                 <param name="velocity_limit">0.08</param>
-                <param name="position_min">-0.002</param>
-                <param name="position_max">0.052</param>
+                <param name="position_min">-5.696002 </param>
+                <param name="position_max">0.236324</param>
+                <!-- 2π 展开：DM4310-2EC 输出轴是单圈绝对，多圈计数掉电后可能差整圈。
+                     下面两个值是"低分支"的电机侧行程（-5.696..0.236），左右各留一点余量，
+                     宽度 6.10 rad < 2π，上电时落在哪个分支唯一。插件用它把读数展开后再换算。 -->
+                <param name="unwrap_min">-5.80</param>
+                <param name="unwrap_max">0.30</param>
                 <param name="p_max">12.5</param>
                 <param name="v_max">30.0</param>
                 <param name="t_max">10.0</param>

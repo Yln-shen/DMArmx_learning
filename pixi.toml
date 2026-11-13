@@ -18,8 +18,22 @@ ros-lyrical-moveit = "*"
 ros-lyrical-moveit-configs-utils = "*"
 ros-lyrical-moveit-servo = "*"
 
+# moveit_calibration（手眼标定，src/moveit_calibration 的 ros2 分支）
+# 其余依赖（cv_bridge / image_geometry / image_transport / rviz_common /
+# tf2_eigen / moveit_common / eigen3_cmake_module …）随 ros-lyrical-desktop
+# 和 ros-lyrical-moveit 已经装好，这里只补缺的两个
+ros-lyrical-moveit-visual-tools = "*"
+ros-lyrical-rviz-visual-tools = "*"
+
 # URDF 教程
 ros-lyrical-urdf-tutorial = "*"
+
+# 手眼标定 easy_handeye2（源码在 ~/realsense_ws/src/easy_handeye2）
+# aruco_ros 用 conda 里已针对 OpenCV 5 编好的，不再从源码编
+# （源码里 src/aruco_ros/aruco 是 vendored 的 OpenCV4 aruco 实现，OpenCV 5 编不过）
+ros-lyrical-aruco-ros = "*"
+# easy_handeye2 用它做四元数/欧拉角换算（package.xml 里叫 python-transforms3d-pip）
+transforms3d = "*"
 
 # 构建工具
 colcon-common-extensions = "*"
@@ -29,14 +43,18 @@ make = "*"
 pkg-config = "*"
 compilers = "*"
 ros-lyrical-rqt-graph = ">=1.8.5,<2"
+opencv = ">=5.0.0,<6"
+ros-lyrical-usb-cam = ">=0.8.1,<0.9"
+ros-lyrical-camera-calibration = ">=7.1.7,<8"
 
 [target.linux-64.dependencies]
 libgl-devel = "*"
 
 # 进入环境时自动 source 本工作空间的构建结果，
-# 否则 ros2/rviz 解析不到 package://dm_armx_description/... 的网格路径
+# 否则 ros2/rviz 解析不到 package://dm_armx_description/... 的网格路径；
+# 第二个脚本把 ~/realsense_ws（easy_handeye2 / aruco_ros）也叠加上来
 [target.unix.activation]
-scripts = ["install/setup.bash"]
+scripts = ["install/setup.bash", "scripts/activate_realsense_ws.sh"]
 
 # GNOME 50 Wayland 下，RViz 走 XWayland；Qt 的 HiDPI 缩放与 GNOME 的
 # Legacy Apps 缩放叠加会导致 RViz 闪烁。这里对整个 pixi 环境统一关掉 Qt 缩放。

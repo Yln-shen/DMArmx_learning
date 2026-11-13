@@ -66,6 +66,11 @@ struct JointConfig
   Limit limit{12.5, 10.0, 28.0};                // 档位（必须来自 0x15/0x16/0x17 回读）
   std::optional<double> position_min;           // 关节侧软限位（我们的标定）；空 = 不钳
   std::optional<double> position_max;
+  // 2π 展开区间（**电机侧** rad）。只给"输出轴单圈绝对、多圈计数掉电丢失、
+  // 且行程接近一圈"的关节用（夹爪）。两个都不给 = 不展开。
+  // 区间宽度必须 < 2π，这样上电时落在哪个分支是唯一的。
+  std::optional<double> unwrap_min;
+  std::optional<double> unwrap_max;
 };
 
 struct JointState
@@ -97,13 +102,21 @@ public:
   uint8_t motor_id() const {return cfg_.motor_id;}
 
   // ── 换算与钳位（纯函数，和 Python 的公式逐条对应）──
-  double joint_to_motor(double joint_value) const;   // offset + direction × scale × v
-  double motor_to_joint(double motor_value) const;   // direction × (v − offset) / scale
+  // 含 2π 展开：内部统一先把电机角加上 turn_offset_，再套 offset/scale。
+  double joint_to_motor(double joint_value) const;   // offset + direction × scale × v − turn_offset
+  double motor_to_joint(double motor_value) const;   // direction × (v + turn_offset − offset) / scale
   double clamp(double joint_value) const;            // 软限位（NaN 不在这里拦，见 prepare_frame）
   double clamp_pmax(double motor_value) const;       // 电机侧 ±PMAX
 
   // 发送前的统一处理：NaN 拦 → 软限位 → 换算 → PMAX。返回**电机侧**位置。
   double prepare_frame(double joint_pos) const;
+
+  // ── 2π 展开 ──
+  // 输出轴单圈绝对编码器的读数只在 [0, 2π) 内唯一；多圈计数掉电后可能差整圈。
+  // 给定电机侧区间 [unwrap_min, unwrap_max]（宽度 < 2π），用当前实测角选出唯一分支。
+  // 返回 false 表示没有精确落进区间（取了最近分支），调用方应 warn。
+  bool init_turn_offset(double * applied_offset = nullptr);
+  bool has_unwrap() const {return cfg_.unwrap_min.has_value() && cfg_.unwrap_max.has_value();}
 
   // ── 发送（每条只发一帧）──
   void set_pos_vel(double joint_pos, double vlim);
@@ -126,6 +139,7 @@ private:
 
   MotorBus & bus_;
   JointConfig cfg_;
+  double turn_offset_ = 0.0;   // 电机侧 2π 展开量，on_activate 时由实测角确定
 };
 
 }  // namespace dm_armx_hardware

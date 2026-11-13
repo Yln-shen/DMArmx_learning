@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <stdexcept>
 #include <utility>
 
@@ -12,6 +13,7 @@ namespace dm_armx_hardware
 namespace
 {
 constexpr double kEps = 1e-12;
+constexpr double kTwoPi = 6.283185307179586476925286766559;
 
 bool limit_equal(const Limit & a, const Limit & b)
 {
@@ -68,6 +70,17 @@ Joint::Joint(MotorBus & bus, const JointConfig & cfg)
   {
     throw std::invalid_argument("关节 " + cfg_.name + "：position_min 比 position_max 还大");
   }
+  if (cfg_.unwrap_min.has_value() && cfg_.unwrap_max.has_value()) {
+    const double span = *cfg_.unwrap_max - *cfg_.unwrap_min;
+    if (!(span > 0.0)) {
+      throw std::invalid_argument("关节 " + cfg_.name + "：unwrap_max 必须大于 unwrap_min");
+    }
+    if (span >= kTwoPi) {
+      throw std::invalid_argument(
+        "关节 " + cfg_.name +
+        "：2π 展开区间宽度必须 < 2π（否则上电分支不唯一），当前 " + std::to_string(span));
+    }
+  }
 
   // 注册到总线：已注册且档位不同 ⇒ 拒（同一台电机两个映射范围 = 力矩静默差数倍）
   if (bus_.has_motor(cfg_.motor_id)) {
@@ -84,12 +97,14 @@ Joint::Joint(MotorBus & bus, const JointConfig & cfg)
 // ── 换算与钳位 ──
 double Joint::joint_to_motor(double joint_value) const
 {
-  return cfg_.offset + static_cast<double>(cfg_.direction) * cfg_.scale * joint_value;
+  return cfg_.offset + static_cast<double>(cfg_.direction) * cfg_.scale * joint_value -
+         turn_offset_;
 }
 
 double Joint::motor_to_joint(double motor_value) const
 {
-  return static_cast<double>(cfg_.direction) * (motor_value - cfg_.offset) / cfg_.scale;
+  return static_cast<double>(cfg_.direction) * (motor_value + turn_offset_ - cfg_.offset) /
+         cfg_.scale;
 }
 
 double Joint::clamp(double joint_value) const
@@ -103,6 +118,47 @@ double Joint::clamp(double joint_value) const
 double Joint::clamp_pmax(double motor_value) const
 {
   return std::max(-cfg_.limit.p_max, std::min(cfg_.limit.p_max, motor_value));
+}
+
+// 输出轴是单圈绝对编码器：上电时电机角可能比"标定分支"多/少整圈。
+// 用电机侧区间 [unwrap_min, unwrap_max]（宽度 < 2π）选出唯一分支。
+bool Joint::init_turn_offset(double * applied_offset)
+{
+  turn_offset_ = 0.0;
+  if (!has_unwrap()) {
+    if (applied_offset != nullptr) {*applied_offset = 0.0;}
+    return true;
+  }
+
+  const auto st = bus_.get_state(cfg_.motor_id);
+  if (st == std::nullopt) {
+    throw std::runtime_error("关节 " + cfg_.name + "：没有反馈，无法做 2π 展开");
+  }
+
+  const double raw = st->pos;
+  const double lo = *cfg_.unwrap_min;
+  const double hi = *cfg_.unwrap_max;
+  bool exact = false;
+  double best = raw;
+  double best_dist = std::numeric_limits<double>::infinity();
+
+  for (int k = -2; k <= 2; ++k) {
+    const double cand = raw + static_cast<double>(k) * kTwoPi;
+    const double dist = (cand < lo) ? (lo - cand) : ((cand > hi) ? (cand - hi) : 0.0);
+    if (dist <= kEps) {
+      best = cand;
+      exact = true;
+      break;
+    }
+    if (dist < best_dist) {
+      best_dist = dist;
+      best = cand;
+    }
+  }
+
+  turn_offset_ = best - raw;
+  if (applied_offset != nullptr) {*applied_offset = turn_offset_;}
+  return exact;
 }
 
 double Joint::prepare_frame(double joint_pos) const
@@ -168,7 +224,8 @@ void Joint::enable()
   }
   try {
     bus_.send_enable(cfg_.motor_id);
-    // 保持帧用**电机侧实测值**，不经过 clamp/换算：钳了就不是"保持"（陷阱 #21）
+    // 保持帧用**电机侧实测值**，不经过 clamp/换算：钳了就不是"保持"（陷阱 #21）。
+    // 也**不加 turn_offset_**：展开只是换算层的分支选择，实测值本身就是当前物理位置。
     if (cfg_.mode == ControlMode::kForcePos) {
       // 力位混控必须发 0x300 帧；发 pos_vel 帧电机不认，等于使能后没有指令
       bus_.send_force_pos(

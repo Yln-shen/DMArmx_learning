@@ -4,6 +4,14 @@
     <!-- 六轴控制模式：2 = 位置速度（默认）；1 = MIT（力矩接口最小验证用）。
          切换 = 改这个参数 + 重启；插件启动时会按它写 CTRL_MODE(0x0A)。 -->
     <xacro:arg name="arm_mode" default="2" />
+    <!-- MIT 刚度：0 = 纯重力补偿（可拖动示教）；>0 = 有回中刚度 -->
+    <xacro:arg name="arm_kp" default="0.0" />
+    <!-- MIT 阻尼：示教时调大（0.1 太弱，会摆） -->
+    <xacro:arg name="arm_kd" default="0.1" />
+
+    <!-- 串口：默认 ttyACM0；设备重新枚举成 ACM1 时用 launch 参数覆盖，
+         或直接用稳定路径 /dev/serial/by-id/usb-HDSC_CDC_Device_00000000050C-if00 -->
+    <xacro:arg name="serial_port" default="/dev/ttyACM0" />
 
     <!-- Import DM_Armx urdf file -->
     <xacro:include filename="$(find dm_armx_description)/urdf/arm.urdf" />

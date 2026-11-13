@@ -80,6 +80,18 @@ JointConfig make_joint_config(
   const double pmax = param_double(info.parameters, "position_max", std::nan(""));
   if (std::isfinite(pmin)) {cfg.position_min = pmin;}
   if (std::isfinite(pmax)) {cfg.position_max = pmax;}
+
+  // 2π 展开区间（电机侧 rad）：可选、必须成对。只给"单圈绝对 + 行程接近一圈"的夹爪。
+  const double umin = param_double(info.parameters, "unwrap_min", std::nan(""));
+  const double umax = param_double(info.parameters, "unwrap_max", std::nan(""));
+  if (std::isfinite(umin) != std::isfinite(umax)) {
+    throw std::invalid_argument(
+      "关节 " + cfg.name + "：unwrap_min / unwrap_max 必须成对给出（电机侧 rad）");
+  }
+  if (std::isfinite(umin) && std::isfinite(umax)) {
+    cfg.unwrap_min = umin;
+    cfg.unwrap_max = umax;
+  }
   return cfg;
 }
 
@@ -182,9 +194,7 @@ bool DmArmxHardwareInterface::apply_control_modes()
     if (bus_->read_register(id, 0x0A, raw, 0.2)) {
       const uint32_t mode = uint8s_to_uint32(raw.data());
       if (mode == expected) {
-        RCLCPP_INFO(
-          get_logger(), "关节 %s：CTRL_MODE 已是 %u，跳过", cfg.name.c_str(), mode);
-        continue;
+        continue;   // 后面 check_control_modes() 会统一打印模式，这里不重复刷日志
       }
       RCLCPP_WARN(
         get_logger(), "关节 %s：CTRL_MODE=%u → %u，先失能再写",
@@ -262,18 +272,38 @@ DmArmxHardwareInterface::CallbackReturn DmArmxHardwareInterface::on_activate(
     // 使能前再刷一次：避免用几秒前的旧位置当"保持帧"
     bus_->sync_states(1.0, 0.03);
 
+    // 单圈绝对编码器上电后可能差整圈：先用电机侧区间把分支选唯一，再使能/发布状态。
+    // 只对配了 unwrap_min/max 的关节做（夹爪）；六轴不用。
     for (const auto & joint : joints_) {
+      if (joint->has_unwrap()) {
+        double applied = 0.0;
+        const bool exact = joint->init_turn_offset(&applied);
+        const double pos = joint->get_state().position;
+        if (exact) {
+          RCLCPP_INFO(
+            get_logger(), "关节 %s：2π 展开 %+.4f rad（区间 [%.3f, %.3f]），关节位置 %+.4f",
+            joint->name().c_str(), applied, *joint->config().unwrap_min,
+            *joint->config().unwrap_max, pos);
+        } else {
+          RCLCPP_WARN(
+            get_logger(),
+            "关节 %s：电机角没有精确落在 2π 展开区间 [%.3f, %.3f]，取最近分支 %+.4f rad"
+            "（关节位置 %+.4f）；请检查夹爪是否卡在行程外",
+            joint->name().c_str(), *joint->config().unwrap_min, *joint->config().unwrap_max,
+            applied, pos);
+        }
+      }
+
       joint->assert_healthy();   // ERR 不是 0/1 ⇒ 抛异常，并且已经先失能
+      const JointState st = joint->get_state();
       // 把启动时每个关节的实测位置打出来：第一次上电要靠它判断方向/零位对不对
       RCLCPP_INFO(
         get_logger(), "启动位置：%s = %+.4f（关节侧单位，电机 0x%02X）",
-        joint->name().c_str(), joint->get_state().position, joint->motor_id());
+        joint->name().c_str(), st.position, joint->motor_id());
       joint->enable();           // 使能 + 立刻发一帧"保持当前实测位置"
 
       // 命令初值 = 实测位置：控制器还没发命令时，write() 也不会朝 0 冲
-      set_command(
-        joint->name() + "/" + hardware_interface::HW_IF_POSITION,
-        joint->get_state().position);
+      set_command(joint->name() + "/" + hardware_interface::HW_IF_POSITION, st.position);
       if (joint->config().mode == ControlMode::kForcePos) {
         // 力控制器没起时 effort 命令就用默认力；0 也会被 Joint 映射成默认力
         set_command(
@@ -325,11 +355,8 @@ hardware_interface::return_type DmArmxHardwareInterface::read(
     const std::string prefix = joint->name() + "/";
     set_state(prefix + hardware_interface::HW_IF_POSITION, st.position);
     set_state(prefix + hardware_interface::HW_IF_VELOCITY, st.velocity);
-    if (joint->config().mode == ControlMode::kForcePos ||
-      joint->config().mode == ControlMode::kMit)
-    {
-      set_state(prefix + hardware_interface::HW_IF_EFFORT, st.torque);
-    }
+    // effort = 电机反馈力矩估计（N·m）：所有模式都导出；位置模式用它做重力辨识
+    set_state(prefix + hardware_interface::HW_IF_EFFORT, st.torque);
 
     if (st.err != 0x0 && st.err != 0x1) {
       const char * text = err_text(st.err);
@@ -361,9 +388,13 @@ hardware_interface::return_type DmArmxHardwareInterface::write(
             "%s 的 MIT 力矩命令是 NaN/inf，按 0 发", joint->name().c_str());
           tau = 0.0;
         }
-        // p_des 用实测位置（kp=0 时无关紧要）；v_des=0；kd 由 xacro 给。
-        joint->set_mit(
-          joint->get_state().position, 0.0, joint->config().kp, joint->config().kd, tau);
+        // p_des 用**位置命令**（on_activate 里锁定为当时实测位置，控制器不动就一直锁着）。
+        // 2026-11-02 前用的是每周期实测位置 ⇒ kp*(p_des-p) 恒为 0，kp 形同虚设、MIT 是纯零刚度。
+        double p_des = target;
+        if (!std::isfinite(p_des)) {
+          p_des = joint->get_state().position;   // 位置侧没命令就退回实测，别发 NaN
+        }
+        joint->set_mit(p_des, 0.0, joint->config().kp, joint->config().kd, tau);
       } else if (joint->config().mode == ControlMode::kForcePos) {
         const double force =
           get_command(joint->name() + "/" + hardware_interface::HW_IF_EFFORT);

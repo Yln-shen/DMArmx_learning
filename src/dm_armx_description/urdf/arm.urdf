@@ -177,7 +177,10 @@
     <parent link="link1" />                                          <!-- 父连杆：link1 -->
     <child link="link2" />                                           <!-- 子连杆：link2 -->
     <axis xyz="0 0 -1" />                                            <!-- 旋转轴：负 Z 轴（经父坐标系旋转后对应世界 Y） -->
-    <limit lower="-3.14" upper="0.02" effort="27" velocity="50" />    <!-- 限位：-π~0，上限留 0.02rad 余量吸收零位噪声（否则 1e-7 越界会让规划直接中止） -->
+    <!-- 2026-11-02：上限 0.02 → 0.06。MIT+kp 伺服时 joint2 实测到过 +0.0389（越过原上限），
+         JointLimiter 对"实测位置越界"是 terminate / 停用控制器，不是钳位。
+         0.06 仍在机械止挡之内（物理上到过 0.039），只多留 0.02 余量吸收超调。 -->
+    <limit lower="-3.14" upper="0.06" effort="27" velocity="50" />
   </joint>                                                           <!-- 关节 joint2 定义结束 -->
 
 
@@ -229,7 +232,11 @@
     <parent link="link2" />                                          <!-- 父连杆：link2 -->
     <child link="link3" />                                           <!-- 子连杆：link3 -->
     <axis xyz="0 0 1" />                                             <!-- 旋转轴：Z 轴 -->
-    <limit lower="-3.14" upper="0.02" effort="27" velocity="50" />    <!-- 限位：-π~0，上限留 0.02rad 余量吸收零位噪声（否则 1e-7 越界会让规划直接中止） -->
+    <!-- 2026-11-01：上限 0.02 → 0.05。真机静止位实测 joint3 = +0.03357（顶在机械限位上），
+         超过原上限 0.0136 rad ⇒ Lyrical 的 JointLimiter 对"实测位置越界"是 **terminate**（不是钳位），
+         整条 ros2_control 起来 4 s 就 Abort，6 台电机随后 10 s 看门狗锁存 ERR=13。
+         放宽到 0.05 后余量 0.016 rad。⚠️ joint2 当前 -0.0156 仍有 0.036 余量，未动。 -->
+    <limit lower="-3.14" upper="0.05" effort="27" velocity="50" />
   </joint>                                                           <!-- 关节 joint3 定义结束 -->
 
 

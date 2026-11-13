@@ -1,4 +1,8 @@
 <launch>
+  <arg name="arm_kp" default="0.0" description="MIT 刚度：0=纯重力补偿(示教)，15=位置伺服(测量)"/>
+  <arg name="arm_kd" default="1.0" description="MIT 阻尼"/>
+  <arg name="serial_port" default="/dev/ttyACM0"
+       description="U2CAN 串口；设备变成 ACM1 时覆盖，或用 /dev/serial/by-id/..."/>
   <!-- MIT 力矩接口最小验证：RSP + ros2_control + JSB + 六轴 effort 控制器。
        不带 MoveIt / JTC；xacro 用 arm_mode:=1，插件启动时把 0x0A 写成 1。
        ⚠️ 写 0x0A 会失能并复位驱动，启动前手臂必须已放稳/有人扶。 -->
@@ -6,7 +10,7 @@
 
   <node pkg="robot_state_publisher" exec="robot_state_publisher" output="screen">
     <param name="robot_description"
-           value="$(command 'xacro $(var urdf_path) arm_mode:=1')"
+           value="$(command 'xacro $(var urdf_path) arm_mode:=1 arm_kp:=$(var arm_kp) arm_kd:=$(var arm_kd) serial_port:=$(var serial_port)')"
            type="str"/>
   </node>
 

@@ -1,4 +1,6 @@
 <launch>
+  <arg name="serial_port" default="/dev/ttyACM0"
+       description="U2CAN 串口；设备变成 ACM1 时覆盖"/>
   <let name="urdf_path"
        value="$(find-pkg-share dm_arm_config)/config/DM_Armx.urdf.xacro" />
 
@@ -7,7 +9,7 @@
 
   <node pkg="robot_state_publisher" exec="robot_state_publisher" output="screen">
     <param name="robot_description"
-           value="$(command 'xacro $(var urdf_path)')"
+           value="$(command 'xacro $(var urdf_path) serial_port:=$(var serial_port)')"
            type="str"/>
   </node>
 

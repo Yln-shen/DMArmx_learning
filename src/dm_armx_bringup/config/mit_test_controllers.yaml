@@ -10,6 +10,10 @@ controller_manager:
     forward_effort_controller:
       type: forward_command_controller/ForwardCommandController
 
+    # MIT 下用 kp 当位置伺服：既能走到受重力姿态，又能同时下发 tau_ff
+    forward_position_controller:
+      type: forward_command_controller/ForwardCommandController
+
 forward_effort_controller:
   ros__parameters:
     joints:
@@ -20,3 +24,14 @@ forward_effort_controller:
       - joint5
       - joint6
     interface_name: effort
+
+forward_position_controller:
+  ros__parameters:
+    joints:
+      - joint1
+      - joint2
+      - joint3
+      - joint4
+      - joint5
+      - joint6
+    interface_name: position

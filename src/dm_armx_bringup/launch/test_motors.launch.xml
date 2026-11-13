@@ -1,4 +1,6 @@
 <launch>
+  <arg name="serial_port" default="/dev/ttyACM0"
+       description="U2CAN 串口；设备变成 ACM1 时覆盖"/>
   <!-- 第一步真机测试：只起 robot_state_publisher + ros2_control + 位置直通控制器。
        先别起 move_group / moveit，减少变量。 -->
   <let name="urdf_path"
@@ -6,7 +8,7 @@
 
   <node pkg="robot_state_publisher" exec="robot_state_publisher" output="screen">
     <param name="robot_description"
-           value="$(command 'xacro $(var urdf_path)')"
+           value="$(command 'xacro $(var urdf_path) serial_port:=$(var serial_port)')"
            type="str"/>
   </node>
 
