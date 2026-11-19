@@ -10,7 +10,6 @@
     <!--CHAINS: When a chain is specified, all the links along the chain (including endpoints) are included in the group. Additionally, all the joints that are parents to included links are also included. This means that joints along the chain and the parent joint of the base link are included in the group-->
     <!--SUBGROUPS: Groups can also be formed by referencing to already defined group names-->
     <group name="arm">
-        <joint name="virtual_joint"/>
         <joint name="joint1"/>
         <joint name="joint2"/>
         <joint name="joint3"/>
@@ -25,13 +24,41 @@
         <joint name="finger_right"/>
     </group>
     <!--GROUP STATES: Purpose: Define a named state for a particular group, in terms of joint values. This is useful to define states like 'folded arms'-->
+    <!-- home = 折叠收拢（大臂小臂对折；工具轴水平朝外，方位角约 -60°；
+         笔尖离底座竖轴约 0.27 m、高约 0.19 m）。
+         2026-11-15 实测：把臂摆成该姿态后，用 src/test/snapshot_srdf_state.py 读出
+         （参数 name=home），不要手抄。换姿态后必须重新快照。 -->
     <group_state name="home" group="arm">
-        <joint name="joint1" value="1.5806"/>
-        <joint name="joint2" value="0"/>
-        <joint name="joint3" value="0"/>
-        <joint name="joint4" value="0"/>
-        <joint name="joint5" value="0"/>
-        <joint name="joint6" value="0"/>
+        <joint name="joint1" value="-1.08530"/>
+        <joint name="joint2" value="-0.01755"/>
+        <joint name="joint3" value="-0.00458"/>
+        <joint name="joint4" value="-0.00076"/>
+        <joint name="joint5" value="-0.03738"/>
+        <joint name="joint6" value="-0.05283"/>
+    </group_state>
+    <!-- ready = 相机观察 / 待抓预备位（工具轴朝下约 -78°，笔尖离底座竖轴 0.19 m、
+         离 base_link 平面约 42 mm）。
+         2026-11-15 实测快照，不要手抄。 -->
+    <group_state name="ready" group="arm">
+        <joint name="joint1" value="-2.63027"/>
+        <joint name="joint2" value="-1.08454"/>
+        <joint name="joint3" value="-0.60655"/>
+        <joint name="joint4" value="0.91173"/>
+        <joint name="joint5" value="-0.12093"/>
+        <joint name="joint6" value="0.21267"/>
+    </group_state>
+    <!-- place = 放置区上方释放位（工具轴朝下约 -80°，笔尖离底座竖轴 0.43 m、
+         离 base_link 平面约 55 mm）。
+         注意：这里的 joint1=-2.88586 超出旧限位 ±2.8，2026-11-15 已把 arm.urdf 的
+         joint1 放宽到 ±2.95（机械行程要先确认）。
+         2026-11-15 实测快照，不要手抄。 -->
+    <group_state name="place" group="arm">
+        <joint name="joint1" value="-2.88586"/>
+        <joint name="joint2" value="-2.04891"/>
+        <joint name="joint3" value="-1.62814"/>
+        <joint name="joint4" value="0.99222"/>
+        <joint name="joint5" value="-0.06332"/>
+        <joint name="joint6" value="0.65061"/>
     </group_state>
     <!-- 夹爪命名状态：两指网格在 q=0 时贴合(=闭合)，q=0.05 时张开 5cm。
          右指是 mimic(multiplier=-1)，不需要写值。 -->

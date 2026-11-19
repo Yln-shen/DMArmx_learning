@@ -273,7 +273,8 @@ DmArmxHardwareInterface::CallbackReturn DmArmxHardwareInterface::on_activate(
     bus_->sync_states(1.0, 0.03);
 
     // 单圈绝对编码器上电后可能差整圈：先用电机侧区间把分支选唯一，再使能/发布状态。
-    // 只对配了 unwrap_min/max 的关节做（夹爪）；六轴不用。
+    // 七台电机（六轴 + 夹爪）都是单圈绝对，xacro 里每个 joint 都配了 unwrap_min/max；
+    // 没配的关节（理论上没有）就保持旧行为。
     for (const auto & joint : joints_) {
       if (joint->has_unwrap()) {
         double applied = 0.0;

@@ -34,6 +34,14 @@
                      原始角 1.299496 → -0.000191。零点已写进驱动器 flash，物理姿态未变，
                      故 offset 整体平移：1.368925 - 1.299496 + (-0.000191) = 0.069238 -->
                 <param name="offset">0.069238</param>
+                <!-- 2π 展开：DM 电机输出轴是单圈绝对编码器，掉电后整圈计数可能差 ±2π
+                     （本机实测 joint6 在三次重启里读到过 -0.05 / +3.20 / +6.33）。
+                     区间 = 电机侧 URDF 行程（offset + 关节限位）左右各留 0.02 rad；
+                     插件在 on_activate 时把读数选到落在区间内的唯一分支，
+                     之后读数与下发指令用同一个分支，不会为了"回正"整圈乱转。
+                     宽度必须 < 2π（代码里会检查）。 -->
+                <param name="unwrap_min">-2.90</param>
+                <param name="unwrap_max">3.04</param>
                 <param name="p_max">12.5</param>
                 <param name="v_max">10.0</param>
                 <param name="t_max">28.0</param>
@@ -51,6 +59,14 @@
                 <param name="kd">$(arg arm_kd)</param>
                 <param name="direction">1</param>
                 <param name="offset">1.802663</param>
+                <!-- 2π 展开：DM 电机输出轴是单圈绝对编码器，掉电后整圈计数可能差 ±2π
+                     （本机实测 joint6 在三次重启里读到过 -0.05 / +3.20 / +6.33）。
+                     区间 = 电机侧 URDF 行程（offset + 关节限位）左右各留 0.02 rad；
+                     插件在 on_activate 时把读数选到落在区间内的唯一分支，
+                     之后读数与下发指令用同一个分支，不会为了"回正"整圈乱转。
+                     宽度必须 < 2π（代码里会检查）。 -->
+                <param name="unwrap_min">-1.36</param>
+                <param name="unwrap_max">1.88</param>
                 <param name="p_max">12.5</param>
                 <param name="v_max">10.0</param>
                 <param name="t_max">28.0</param>
@@ -68,6 +84,14 @@
                 <param name="kd">$(arg arm_kd)</param>
                 <param name="direction">1</param>
                 <param name="offset">-0.296979</param>
+                <!-- 2π 展开：DM 电机输出轴是单圈绝对编码器，掉电后整圈计数可能差 ±2π
+                     （本机实测 joint6 在三次重启里读到过 -0.05 / +3.20 / +6.33）。
+                     区间 = 电机侧 URDF 行程（offset + 关节限位）左右各留 0.02 rad；
+                     插件在 on_activate 时把读数选到落在区间内的唯一分支，
+                     之后读数与下发指令用同一个分支，不会为了"回正"整圈乱转。
+                     宽度必须 < 2π（代码里会检查）。 -->
+                <param name="unwrap_min">-3.46</param>
+                <param name="unwrap_max">-0.23</param>
                 <param name="p_max">12.5</param>
                 <param name="v_max">10.0</param>
                 <param name="t_max">28.0</param>
@@ -86,6 +110,14 @@
                 <param name="kd">$(arg arm_kd)</param>
                 <param name="direction">1</param>
                 <param name="offset">1.859121</param>
+                <!-- 2π 展开：DM 电机输出轴是单圈绝对编码器，掉电后整圈计数可能差 ±2π
+                     （本机实测 joint6 在三次重启里读到过 -0.05 / +3.20 / +6.33）。
+                     区间 = 电机侧 URDF 行程（offset + 关节限位）左右各留 0.02 rad；
+                     插件在 on_activate 时把读数选到落在区间内的唯一分支，
+                     之后读数与下发指令用同一个分支，不会为了"回正"整圈乱转。
+                     宽度必须 < 2π（代码里会检查）。 -->
+                <param name="unwrap_min">-0.03</param>
+                <param name="unwrap_max">3.45</param>
                 <param name="p_max">12.5</param>
                 <param name="v_max">30.0</param>
                 <param name="t_max">10.0</param>
@@ -103,6 +135,14 @@
                 <param name="kd">$(arg arm_kd)</param>
                 <param name="direction">1</param>
                 <param name="offset">1.300259</param>
+                <!-- 2π 展开：DM 电机输出轴是单圈绝对编码器，掉电后整圈计数可能差 ±2π
+                     （本机实测 joint6 在三次重启里读到过 -0.05 / +3.20 / +6.33）。
+                     区间 = 电机侧 URDF 行程（offset + 关节限位）左右各留 0.02 rad；
+                     插件在 on_activate 时把读数选到落在区间内的唯一分支，
+                     之后读数与下发指令用同一个分支，不会为了"回正"整圈乱转。
+                     宽度必须 < 2π（代码里会检查）。 -->
+                <param name="unwrap_min">-0.29</param>
+                <param name="unwrap_max">2.89</param>
                 <param name="p_max">12.5</param>
                 <param name="v_max">30.0</param>
                 <param name="t_max">10.0</param>
@@ -120,6 +160,11 @@
                 <param name="kd">$(arg arm_kd)</param>
                 <param name="direction">1</param>
                 <param name="offset">-0.264744</param>
+                <!-- 2π 展开：joint6 行程正好一整圈（±3.14），电机侧区间宽度会顶到 2π，
+                     所以两端各让出约 0.015 rad（关节侧 |q| > 3.125 的部分不参与分支判断）：
+                     别把 joint6 停在这个极限附近上电，否则可能选错分支。 -->
+                <param name="unwrap_min">-3.39</param>
+                <param name="unwrap_max">2.86</param>
                 <param name="p_max">12.5</param>
                 <param name="v_max">30.0</param>
                 <param name="t_max">10.0</param>

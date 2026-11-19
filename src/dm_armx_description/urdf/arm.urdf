@@ -125,7 +125,9 @@
     <parent link="base_link" />                                      <!-- 父连杆：base_link -->
     <child link="link1" />                                           <!-- 子连杆：link1 -->
     <axis xyz="0 0 1" />                                             <!-- 旋转轴：Z 轴 -->
-    <limit lower="-2.8" upper="2.8" effort="27" velocity="50" />     <!-- 限位：±2.8rad，力矩 27N·m，速度 50rad/s -->
+    <limit lower="-2.95" upper="2.95" effort="27" velocity="50" />   <!-- 限位：±2.95rad（169°）。2026-11-15 从 ±2.8 放宽：
+                                                                        实测 place 姿态 joint1=-2.886 被原限位判越界。
+                                                                        放宽前必须确认真机 joint1 机械行程够（首次低速点动试探）。 -->
   </joint>                                                           <!-- 关节 joint1 定义结束 -->
 
 
